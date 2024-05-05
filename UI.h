@@ -2,51 +2,59 @@
 #include <cstdlib>
 #include <time.h>
 #include <cstring>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
+#include "sharedvariables.h"
 
 using namespace std;
 using namespace sf;
+
+pthread_mutex_t mut2 = PTHREAD_MUTEX_INITIALIZER;
 
 
 class UI
 {
     public:
+    SharedVariables *shared;
 
-    UI(){}
-
-    int getInput()
+    UI(void *&arg)
     {
-         
-        bool w,a,s,d;
+        shared = (SharedVariables*) arg;
+    }
 
-        w = Keyboard::isKeyPressed(Keyboard::W);
-        a = Keyboard::isKeyPressed(Keyboard::A);
-        s = Keyboard::isKeyPressed(Keyboard::S);
-        d = Keyboard::isKeyPressed(Keyboard::D);
+    void getInput()
+    {
+       while(!shared->gameOver)
+       {
+            char input = '*';  // * means user pressed soemthing other than w a s d
+            bool w,a,s,d;
 
-        if(w)
-        {
-            return 0;
-        }
+            w = Keyboard::isKeyPressed(Keyboard::W);
+            a = Keyboard::isKeyPressed(Keyboard::A);
+            s = Keyboard::isKeyPressed(Keyboard::S);
+            d = Keyboard::isKeyPressed(Keyboard::D);
 
-        else if(d)
-        {
-            return 1;
-        }
+            if(w)
+            {
+                input = 'w';
+            }
 
-        else if(s)
-        {
-           return 2;
-        }
+            else if(d)
+            {
+                input = 'd';
+            }
 
-        else if(a)
-        {
-            return 3;
-        }
+            else if(s)
+            {
+            input= 's';
+            }
 
-        else return -1;
-
+            else if(a)
+            {
+                input = 'a';
+            }
+            pthread_mutex_lock(&mut2);
+            shared->userInput =  input;  
+            pthread_mutex_unlock(&mut2);
+       } 
     }
 
 

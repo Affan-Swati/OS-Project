@@ -1,9 +1,13 @@
+#ifndef PACMAN_H
+#define PACMAN_H
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
 #include <cstring>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+
+
 #include <pthread.h>
 
 using namespace std;
@@ -56,15 +60,8 @@ class Pacman
 
     }
 
-    int getInput()
+    int getInput(char input)
     {
-        bool w,a,s,d;
-
-        w = Keyboard::isKeyPressed(Keyboard::W);
-        a = Keyboard::isKeyPressed(Keyboard::A);
-        s = Keyboard::isKeyPressed(Keyboard::S);
-        d = Keyboard::isKeyPressed(Keyboard::D);
-
         if(clk.getElapsedTime().asSeconds() > 0.1)
         {
             if(state == 0)
@@ -121,22 +118,22 @@ class Pacman
             clk.restart();
         }   
 
-        if(w)
+        if(input == 'w')
         {
             return 0;
         }
 
-        else if(d)
+        else if(input == 'd')
         {
             return 1;
         }
 
-        else if(s)
+        else if(input == 's')
         {
            return 2;
         }
 
-        else if(a)
+        else if(input == 'a')
         {
             return 3;
         }
@@ -148,3 +145,4 @@ class Pacman
         direction = dir;
     }
 };
+#endif

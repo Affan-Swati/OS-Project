@@ -1,11 +1,18 @@
+#ifndef GAMEENGINE_H
+#define GAMEENGINE_H
+
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
 #include <cstring>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include "gameboard.h"
 #include "pacman.h"
+#include "sharedvariables.h"
+#include <unistd.h>
+#include <pthread.h>
+
+
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
 using namespace std;
 using namespace sf;
@@ -14,6 +21,7 @@ class GameEngine
 {
     public:
     
+    SharedVariables *shared;
     GameBoard *gameboard;
     Pacman *pacman = new Pacman;
     // create 4 ghosts here
@@ -24,8 +32,9 @@ class GameEngine
 
     Music siren , eat1,eat2;
    
-    GameEngine()
+    GameEngine(void *&arg)
     {
+        shared = (SharedVariables*)arg;
         gameboard = new GameBoard;
         tex.loadFromFile("img/other/dot.png");
         food.setTexture(tex);
@@ -37,15 +46,15 @@ class GameEngine
 
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
+
     }
-
-
+    
     void start_game()
     {
         RenderWindow window(VideoMode(695,900), "OS PROJECT");
 
         Text text;
-        Font font;
+        sf::Font font;
         font.loadFromFile("font.ttf");
         text.setFont(font);
         text.setPosition(Vector2f(270,850));
@@ -54,8 +63,10 @@ class GameEngine
         float time = 0;        
         siren.play();
         siren.setLoop(true);
+        
         while (window.isOpen())
         {
+
             window.clear();
             Event event;
             while (window.pollEvent(event))
@@ -65,11 +76,15 @@ class GameEngine
                     siren.stop();
                     eat1.stop();
                     eat2.stop();
+                    shared->gameOver = true;
                     window.close();
                 }
             }
 
-            int input = pacman->getInput();
+            pthread_mutex_lock(&mut);
+            int input = pacman->getInput(shared->userInput);
+            pthread_mutex_unlock(&mut);
+
 
             if (clk.getElapsedTime().asSeconds() > 0.15) // delay for player movement
             {
@@ -87,7 +102,6 @@ class GameEngine
             gameboard->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y);
             window.draw(text);
             window.display();
-
         }
     }
 
@@ -160,3 +174,4 @@ class GameEngine
     }
 
 };
+#endif

@@ -1,3 +1,5 @@
+#ifndef GAMEBOARD_H
+#define GAMEBOARD_H
 #include <iostream>
 #include <cstdlib>
 #include <time.h>
@@ -159,3 +161,4 @@ class GameBoard
             }
         }
 };
+#endif
