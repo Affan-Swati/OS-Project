@@ -96,7 +96,7 @@ class GameEngine
             }
 
             text.setString("SCORE: " + to_string(pacman->score));
-            //gameboard->drawMaze(window);
+            gameboard->drawMaze(window);
             window.draw(gameboard->sprite);
             gameboard->drawFood(window,food);
             gameboard->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y);
@@ -111,41 +111,58 @@ class GameEngine
     {
         int originalX = pacman->position.x;
         int originalY = pacman->position.y;
-
-        int nextX = pacman->position.x;
         int nextY = pacman->position.y;
-
-        if (input == 0) {
-            nextY -= speed;
-        } else if (input == 1) {
-            nextX += speed;
-        } else if (input == 2) {
-            nextY += speed;
-        } else if (input == 3) {
-            nextX -= speed;
-        }
+        int nextX = pacman->position.x;
 
         bool canMove = true;
 
-        for (int i = 0; i < 4; ++i) 
+        if(originalY == 22 && originalX == 0 && input == 3)
         {
-            int cornerX = nextX;
-            int cornerY = nextY;
+            nextX  = 44;
+        }
 
-            if (i == 1 || i == 2) 
+        else if (originalY == 22 && originalX == 44 && input == 1)
+        {
+            nextX = 0;
+        }
+
+        else
+        {
+    
+            if (input == 0) 
             {
-                cornerX += 1; // Adjust for right corners
-            }
-            if (i == 2 || i == 3) 
+                nextY -= speed;
+            } else if (input == 1) 
             {
-                cornerY += 1; // Adjust for bottom corners
+                nextX += speed;
+            } else if (input == 2) 
+            {
+                nextY += speed;
+            } else if (input == 3) 
+            {
+                nextX -= speed;
             }
 
-            // Check collision with the next cell for each corner
-            if (gameboard->checkCollision(cornerX, cornerY)) 
+            for (int i = 0; i < 4; ++i) 
             {
-                canMove = false;
-                break;
+                int cornerX = nextX;
+                int cornerY = nextY;
+
+                if (i == 1 || i == 2) 
+                {
+                    cornerX += 1; // Adjust for right corners
+                }
+                if (i == 2 || i == 3) 
+                {
+                    cornerY += 1; // Adjust for bottom corners
+                }
+
+                // Check collision with the next cell for each corner
+                if (gameboard->checkCollision(cornerX, cornerY)) 
+                {
+                    canMove = false;
+                    break;
+                }
             }
         }
 
@@ -163,10 +180,9 @@ class GameEngine
                 eat2.play();
                 pacman->score = pacman->score + 1;
             }
-            
             gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
             gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
-            
+           
             pacman->sprite.setPosition(pacman->position);
 
         }
