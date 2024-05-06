@@ -5,8 +5,9 @@
 #include <cstdlib>
 #include <time.h>
 #include <cstring>
-#include "gameboard.h"
+#include "graphicsrenderer.h"
 #include "pacman.h"
+#include "blinky.h"
 #include "sharedvariables.h"
 #include <unistd.h>
 #include <pthread.h>
@@ -22,8 +23,9 @@ class GameEngine
     public:
     
     SharedVariables *shared;
-    GameBoard *gameboard;
+    GraphicsRenderer *graphicsRenderer;
     Pacman *pacman = new Pacman;
+    Ghost *blinky = new Blinky; // polymorphism 
     // create 4 ghosts here
     float speed = 1;
 
@@ -35,11 +37,12 @@ class GameEngine
     GameEngine(void *&arg)
     {
         shared = (SharedVariables*)arg;
-        gameboard = new GameBoard;
+        graphicsRenderer = new GraphicsRenderer(shared);
+        this->initializeFood();
         tex.loadFromFile("img/other/dot.png");
         food.setTexture(tex);
         food.setScale(1.5,1.5);
-        gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
+        shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
         siren.openFromFile("sounds/siren.wav");
         eat2.openFromFile("sounds/eat.wav");
         eat1.openFromFile("sounds/PelletEat2.wav");
@@ -86,20 +89,30 @@ class GameEngine
             pthread_mutex_unlock(&mut);
 
 
-            if (clk.getElapsedTime().asSeconds() > 0.15) // delay for player movement
+            if (clk.getElapsedTime().asSeconds() > 0.1) // delay for player movement
             {
                 if(!validate_move(input))
                     validate_move(pacman->direction);
+                
+                pair<int,int> newPos = blinky->update(pacman->position.x , pacman->position.y);
+
+                if(!this->checkCollisionGhost(newPos.first,newPos.second))
+                {
+                    blinky->position.x = newPos.first;
+                    blinky->position.y = newPos.second;
+                }
+
                  
                 clk.restart();
 
             }
 
             text.setString("SCORE: " + to_string(pacman->score));
-            gameboard->drawMaze(window);
-            window.draw(gameboard->sprite);
-            gameboard->drawFood(window,food);
-            gameboard->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y);
+            //gameboard->drawMaze(window);
+            window.draw(graphicsRenderer->sprite);
+            graphicsRenderer->drawFood(window,food);
+            graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
+            graphicsRenderer->drawBlinky(window, blinky->sprite,blinky->position.x , blinky->position.y);
             window.draw(text);
             window.display();
         }
@@ -158,7 +171,7 @@ class GameEngine
                 }
 
                 // Check collision with the next cell for each corner
-                if (gameboard->checkCollision(cornerX, cornerY)) 
+                if (this->checkCollision(cornerX, cornerY)) 
                 {
                     canMove = false;
                     break;
@@ -172,7 +185,7 @@ class GameEngine
             pacman->position.x = nextX;
             pacman->position.y = nextY;
 
-            if(gameBoard[nextY][nextX] == 3) 
+            if(shared->gameBoard[nextY][nextX] == 3) 
             {
                 eat1.stop();
                 eat2.stop();
@@ -180,13 +193,54 @@ class GameEngine
                 eat2.play();
                 pacman->score = pacman->score + 1;
             }
-            gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
-            gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
-           
+            shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
+            shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
+
             pacman->sprite.setPosition(pacman->position);
+
 
         }
         return canMove;
+    }
+
+    void initializeFood()
+    {
+        for (int i = 0; i < shared->ROWS; i+=2) 
+        {
+            for (int j = 0; j < shared->COLS; j+=2) 
+            {
+                if (shared->gameBoard[i][j] == 0) 
+                {
+                    shared->gameBoard[i][j] = 3; // 3 for food
+                }
+            }
+        }
+
+    }
+
+    // Function to check collision at a given position
+    bool checkCollision(int x, int y) 
+    {
+        // Check if the position is within the boundaries of the game board
+        if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
+        {
+            if(shared->gameBoard[y][x] == 0 || shared->gameBoard[y][x] == 3 || shared->gameBoard[y][x] == 2)
+                return false;
+        }
+        // If the position is outside the game board, consider it a collision
+        return true;
+    }
+
+    bool checkCollisionGhost(int x, int y) 
+    {
+        // Check if the position is within the boundaries of the game board
+        if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
+        {
+            if(shared->gameBoard[y][x] != 1 && shared->gameBoard[y][x] != 2)
+                return false;
+        }
+        // If the position is outside the game board, consider it a collision
+        return true;
     }
 
 };

@@ -51,8 +51,6 @@ class Pacman
         position.x = 17;
         position.y = 36;
         
-        Vector2u size = l3.getSize();
-        //sprite.setOrigin(size.x / 2.f, size.y / 2.f);
         sprite.setPosition(position.x * 15 ,  position.y * 15);
         sprite.setScale(1.3,1.5); // DONT CHANGE THE SCALE VALUES , THEY ARE PIXEL PERFECT :") 1.4 x 1.7
         clk.restart();
@@ -62,7 +60,7 @@ class Pacman
 
     int getInput(char input)
     {
-        if(clk.getElapsedTime().asSeconds() > 0.1)
+        if(clk.getElapsedTime().asSeconds() > 0.1) //  delay for mouth open and close animations
         {
             if(state == 0)
             {

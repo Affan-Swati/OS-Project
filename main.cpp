@@ -59,7 +59,8 @@ int main()
 
     t2_active = true;
     pthread_create(&tid2,NULL,UI_thread_function,(void*)shared);  
-
+    
+    //pthread_exit(0);
     while(t1_active);
     while(t2_active);
 }
