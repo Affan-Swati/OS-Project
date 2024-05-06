@@ -1,15 +1,17 @@
 #pragma once
 #include <iostream>
 using namespace std;
+using namespace sf;
 
 struct SharedVariables
 {
     char userInput = 'a';
     bool gameOver = false;
+    Vector2f blinkyPos = Vector2f(18,22);
     static const int ROWS = 50;
     static const int COLS = 46; 
     int gameBoard[ROWS][COLS] // 0 EMPTY SPACE , 1 WALLS , 2 PACMAN , 3 FOOD PELLETS , 4 BARRIER FOR PLAYER AND NOT FOR GHOST
-    {                         // 5 blinky , 6 clyde , 7 inky , 8 pinky
+    {                         // 5 blinky , 6 pinky , 7 inky , 8 clyde
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1},

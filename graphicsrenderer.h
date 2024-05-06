@@ -83,10 +83,16 @@ class GraphicsRenderer
             }
         }
 
-        void drawBlinky(RenderWindow &window , Sprite& sprite , int x , int y)
+        void drawGhost(RenderWindow &window , Sprite& sprite , int x , int y)
         {
             sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
             window.draw(sprite);            
         }
+
+        void drawMap(RenderWindow &window )
+        {
+            window.draw(sprite);
+        }
+
 };
 #endif

@@ -8,6 +8,9 @@
 #include "graphicsrenderer.h"
 #include "pacman.h"
 #include "blinky.h"
+#include "pinky.h"
+#include "inky.h"
+#include "clyde.h"
 #include "sharedvariables.h"
 #include <unistd.h>
 #include <pthread.h>
@@ -24,13 +27,13 @@ class GameEngine
     
     SharedVariables *shared;
     GraphicsRenderer *graphicsRenderer;
-    Pacman *pacman = new Pacman;
-    Ghost *blinky = new Blinky; // polymorphism 
+    Pacman *pacman;;
+    Ghost *blinky , *pinky ,*inky ,*clyde; // polymorphism 
     // create 4 ghosts here
-    float speed = 1;
+    float speed;;
 
-    Sprite food;
-    Texture tex;
+    Sprite food , logo;
+    Texture tex , tex_logo;
 
     Music siren , eat1,eat2;
    
@@ -38,10 +41,23 @@ class GameEngine
     {
         shared = (SharedVariables*)arg;
         graphicsRenderer = new GraphicsRenderer(shared);
+        pacman = new Pacman;
+        blinky = new Blinky(arg);
+        pinky = new Pinky(arg);
+        inky = new Inky(arg);
+        clyde = new Clyde(arg);
+
+        speed = 1;
         this->initializeFood();
         tex.loadFromFile("img/other/dot.png");
+        tex_logo.loadFromFile("img/other/logo.png");
         food.setTexture(tex);
         food.setScale(1.5,1.5);
+        logo.setTexture(tex_logo);
+        logo.setPosition(208,750);
+        logo.setScale(0.1,0.1);
+
+
         shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
         siren.openFromFile("sounds/siren.wav");
         eat2.openFromFile("sounds/eat.wav");
@@ -56,13 +72,25 @@ class GameEngine
     {
         RenderWindow window(VideoMode(695,900), "OS PROJECT");
 
-        Text text;
+        Text text , text2;
         sf::Font font;
         font.loadFromFile("font.ttf");
         text.setFont(font);
-        text.setPosition(Vector2f(270,850));
+        text.setPosition(Vector2f(295,850));
+        text.setOutlineColor(Color::Blue);
+        text.setOutlineThickness(2.0f);
+        text.setFillColor(Color::Yellow);
 
-        Clock clk;
+        text2.setFont(font);
+        text2.setPosition(Vector2f(260,430));
+        text2.setString("Adil Nadeem ;D");
+        text2.setScale(0.8,0.8);
+        text2.setOutlineColor(Color::Yellow);
+        text2.setOutlineThickness(3.0f);
+        text2.setFillColor(Color::Blue);
+        
+
+        Clock clk , clk2;
         float time = 0;        
         siren.play();
         siren.setLoop(true);
@@ -93,27 +121,33 @@ class GameEngine
             {
                 if(!validate_move(input))
                     validate_move(pacman->direction);
-                
-                pair<int,int> newPos = blinky->update(pacman->position.x , pacman->position.y);
-
-                if(!this->checkCollisionGhost(newPos.first,newPos.second))
-                {
-                    blinky->position.x = newPos.first;
-                    blinky->position.y = newPos.second;
-                }
-
-                 
+                                 
                 clk.restart();
-
             }
 
+            if (clk2.getElapsedTime().asSeconds() > 0.125) // delay for player movement
+            {
+                blinky->update(pacman->position.x , pacman->position.y , pacman->direction);
+                pinky->update(pacman->position.x , pacman->position.y , pacman->direction);   
+                inky->update(pacman->position.x , pacman->position.y , pacman->direction);     
+                clyde->update(pacman->position.x , pacman->position.y , pacman->direction);      
+
+                clk2.restart();
+            }
+
+
             text.setString("SCORE: " + to_string(pacman->score));
-            //gameboard->drawMaze(window);
-            window.draw(graphicsRenderer->sprite);
+            //graphicsRenderer->drawMaze(window);
+            graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window,food);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
-            graphicsRenderer->drawBlinky(window, blinky->sprite,blinky->position.x , blinky->position.y);
+            graphicsRenderer->drawGhost(window, blinky->sprite,blinky->position.x , blinky->position.y);
+            graphicsRenderer->drawGhost(window, pinky->sprite,pinky->position.x , pinky->position.y);
+            graphicsRenderer->drawGhost(window, inky->sprite,inky->position.x , inky->position.y);
+            graphicsRenderer->drawGhost(window, clyde->sprite,clyde->position.x , clyde->position.y);
             window.draw(text);
+            window.draw(text2);
+            window.draw(logo);
             window.display();
         }
     }
@@ -224,7 +258,7 @@ class GameEngine
         // Check if the position is within the boundaries of the game board
         if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
         {
-            if(shared->gameBoard[y][x] == 0 || shared->gameBoard[y][x] == 3 || shared->gameBoard[y][x] == 2)
+            if(shared->gameBoard[y][x] == 0 || shared->gameBoard[y][x] == 3 || shared->gameBoard[y][x] == 2 )
                 return false;
         }
         // If the position is outside the game board, consider it a collision
