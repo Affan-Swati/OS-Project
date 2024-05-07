@@ -29,21 +29,21 @@ class Pacman
     
     Pacman()
     {
-        u1.loadFromFile("img/pacman-up/1.png");
-        u2.loadFromFile("img/pacman-up/2.png");
-        u3.loadFromFile("img/pacman-up/3.png");
+        u1.loadFromFile("../resources/img/pacman-up/1.png");
+        u2.loadFromFile("../resources/img/pacman-up/2.png");
+        u3.loadFromFile("../resources/img/pacman-up/3.png");
 
-        d1.loadFromFile("img/pacman-down/1.png");
-        d2.loadFromFile("img/pacman-down/2.png");
-        d3.loadFromFile("img/pacman-down/3.png");
+        d1.loadFromFile("../resources/img/pacman-down/1.png");
+        d2.loadFromFile("../resources/img/pacman-down/2.png");
+        d3.loadFromFile("../resources/img/pacman-down/3.png");
 
-        r1.loadFromFile("img/pacman-right/1.png");
-        r2.loadFromFile("img/pacman-right/2.png");
-        r3.loadFromFile("img/pacman-right/3.png");
+        r1.loadFromFile("../resources/img/pacman-right/1.png");
+        r2.loadFromFile("../resources/img/pacman-right/2.png");
+        r3.loadFromFile("../resources/img/pacman-right/3.png");
 
-        l1.loadFromFile("img/pacman-left/1.png");
-        l2.loadFromFile("img/pacman-left/2.png");
-        l3.loadFromFile("img/pacman-left/3.png");
+        l1.loadFromFile("../resources/img/pacman-left/1.png");
+        l2.loadFromFile("../resources/img/pacman-left/2.png");
+        l3.loadFromFile("../resources/img/pacman-left/3.png");
 
         sprite.setTexture(l3);
         direction = 3;

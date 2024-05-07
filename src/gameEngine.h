@@ -7,10 +7,10 @@
 #include <cstring>
 #include "graphicsrenderer.h"
 #include "pacman.h"
-#include "blinky.h"
-#include "pinky.h"
-#include "inky.h"
-#include "clyde.h"
+#include "ghosts/blinky.h"
+#include "ghosts/pinky.h"
+#include "ghosts/inky.h"
+#include "ghosts/clyde.h"
 #include "sharedvariables.h"
 #include <unistd.h>
 #include <pthread.h>
@@ -49,8 +49,8 @@ class GameEngine
 
         speed = 1;
         this->initializeFood();
-        tex.loadFromFile("img/other/dot.png");
-        tex_logo.loadFromFile("img/other/logo.png");
+        tex.loadFromFile("../resources/img/other/dot.png");
+        tex_logo.loadFromFile("../resources/img/other/logo.png");
         food.setTexture(tex);
         food.setScale(1.5,1.5);
         logo.setTexture(tex_logo);
@@ -59,9 +59,9 @@ class GameEngine
 
 
         shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
-        siren.openFromFile("sounds/siren.wav");
-        eat2.openFromFile("sounds/eat.wav");
-        eat1.openFromFile("sounds/PelletEat2.wav");
+        siren.openFromFile("../resources/sounds/siren.wav");
+        eat2.openFromFile("../resources/sounds/eat.wav");
+        eat1.openFromFile("../resources/sounds/PelletEat2.wav");
 
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
@@ -74,7 +74,7 @@ class GameEngine
 
         Text text , text2;
         sf::Font font;
-        font.loadFromFile("font.ttf");
+        font.loadFromFile("../resources/font.ttf");
         text.setFont(font);
         text.setPosition(Vector2f(295,850));
         text.setOutlineColor(Color::Blue);
@@ -90,7 +90,7 @@ class GameEngine
         text2.setFillColor(Color::Blue);
         
 
-        Clock clk , clk2;
+        Clock clk;
         float time = 0;        
         siren.play();
         siren.setLoop(true);
@@ -125,28 +125,17 @@ class GameEngine
                 clk.restart();
             }
 
-            if (clk2.getElapsedTime().asSeconds() > 0.125) // delay for player movement
-            {
-                blinky->update(pacman->position.x , pacman->position.y , pacman->direction);
-                pinky->update(pacman->position.x , pacman->position.y , pacman->direction);   
-                inky->update(pacman->position.x , pacman->position.y , pacman->direction);     
-                clyde->update(pacman->position.x , pacman->position.y , pacman->direction);      
-
-                clk2.restart();
-            }
-
-
             text.setString("SCORE: " + to_string(pacman->score));
             //graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window,food);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
-            graphicsRenderer->drawGhost(window, blinky->sprite,blinky->position.x , blinky->position.y);
-            graphicsRenderer->drawGhost(window, pinky->sprite,pinky->position.x , pinky->position.y);
-            graphicsRenderer->drawGhost(window, inky->sprite,inky->position.x , inky->position.y);
-            graphicsRenderer->drawGhost(window, clyde->sprite,clyde->position.x , clyde->position.y);
+            graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
+            graphicsRenderer->drawGhost(window, pinky->sprite,shared->pinkyPos.first.x , shared->pinkyPos.first.y);
+            graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
+            graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y);
             window.draw(text);
-            window.draw(text2);
+            //window.draw(text2);
             window.draw(logo);
             window.display();
         }
@@ -216,6 +205,7 @@ class GameEngine
         if (canMove) 
         {
             pacman->setDirection(input);
+            shared->pacDirection = input;
             pacman->position.x = nextX;
             pacman->position.y = nextY;
 
@@ -231,8 +221,7 @@ class GameEngine
             shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
 
             pacman->sprite.setPosition(pacman->position);
-
-
+            shared->pacPos = pacman->position;
         }
         return canMove;
     }

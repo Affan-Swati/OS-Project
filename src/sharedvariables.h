@@ -1,13 +1,23 @@
 #pragma once
 #include <iostream>
+#include <vector>
 using namespace std;
 using namespace sf;
 
 struct SharedVariables
 {
-    char userInput = 'a';
-    bool gameOver = false;
-    Vector2f blinkyPos = Vector2f(18,22);
+    char userInput  = 'a';
+    bool gameOver   = false;
+    int pacDirection   = 3;
+    Vector2f pacPos = Vector2f(17,36);
+
+    // first is currentPos , second is previousPos
+    pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(-1,-1)}; 
+    pair<Vector2f,Vector2f> pinkyPos  = {Vector2f(20,22) ,Vector2f(-1,-1)};
+    pair<Vector2f,Vector2f> inkyPos   = {Vector2f(24,22) ,Vector2f(-1,-1)};
+    pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(-1,-1)};
+
+   
     static const int ROWS = 50;
     static const int COLS = 46; 
     int gameBoard[ROWS][COLS] // 0 EMPTY SPACE , 1 WALLS , 2 PACMAN , 3 FOOD PELLETS , 4 BARRIER FOR PLAYER AND NOT FOR GHOST

@@ -24,7 +24,7 @@ class GraphicsRenderer
 
         GraphicsRenderer(SharedVariables *shared) 
         {
-            tex.loadFromFile("img/board/map1.png") ;
+            tex.loadFromFile("../resources/img/board/map1.png") ;
             sprite.setTexture(tex);     
             sprite.setScale(1,1);
             this->shared = shared;
