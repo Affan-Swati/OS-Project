@@ -16,6 +16,10 @@ class GhostController
     public:
     SharedVariables* shared;
     bool inHouse;
+    bool key;
+    bool permit;
+    int key_index;
+    int permit_index;
     
     GhostController()
     {
@@ -48,9 +52,59 @@ class GhostController
             moves.push_back(make_pair(nextX , nextY - 1));
         }
 
+        
         return moves;
     }
 
+    bool grabKey()
+    {
+        if(shared->key[0])
+        {
+            shared->key[0] = false;
+            this->key = true;
+            key_index = 0;
+            return true;
+        }
+
+        else if(shared->key[1])
+        {
+            shared->key[1] = false;
+            this->key = true;
+            key_index = 1;
+            return true;
+        }
+
+        else return false;
+    }
+
+    bool grabPermit()
+    {
+        if(shared->permit[0])
+        {
+            shared->permit[0] = false;
+            this->permit = true;
+            permit_index = 0;
+            return true;
+        }
+
+        else if(shared->permit[1])
+        {
+            shared->permit[1] = false;
+            this->permit = true;
+            permit_index = 1;
+            return true;
+        }
+
+        else return false;
+    }
+
+    void releaseKeyPermit()
+    {
+        permit = false;
+        key = false;
+        shared->key[key_index] = true;
+        shared->permit[permit_index] = true;
+    }
     
     private:
     bool checkCollisionGhost(int x, int y) 

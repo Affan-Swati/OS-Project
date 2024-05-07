@@ -7,6 +7,10 @@ class BlinkyController : public GhostController
     {
         shared = (SharedVariables*) arg;
         inHouse = true;
+        key = false;
+        permit = false;
+        key_index = -1;
+        permit_index = -1;
     }
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY , int direction)
@@ -51,7 +55,10 @@ class BlinkyController : public GhostController
         shared->blinkyPos.first.y = newCoordinates.second;
 
         if(inHouse && shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 19)
+        {
             inHouse = false;
+            releaseKeyPermit();
+        }
 
     }
 

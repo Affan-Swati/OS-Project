@@ -73,7 +73,26 @@ void * Blinky_thread_function(void * arg)
     {
        if(ghostSync1.getElapsedTime().asSeconds() > 0.1)
        {
-            blinkyController->update();
+            if(!blinkyController->inHouse || (blinkyController->key && blinkyController->permit))
+            {
+                blinkyController->update();
+            }
+            else
+            {
+                pthread_mutex_lock(&mut3);
+                if(!blinkyController->key)
+                {
+                    blinkyController->grabKey();    
+                }
+                pthread_mutex_unlock(&mut3);
+
+                pthread_mutex_lock(&mut3);
+                if(!blinkyController->permit)
+                {
+                    blinkyController->grabPermit();
+                }
+                pthread_mutex_unlock(&mut3);
+            }
             ghostSync1.restart();
        }
     }
@@ -91,7 +110,26 @@ void * Pinky_thread_function(void * arg)
     {
        if(ghostSync2.getElapsedTime().asSeconds() > 0.1)
        {
-            pinkyController->update();
+            if(!pinkyController->inHouse || (pinkyController->key && pinkyController->permit))
+            {
+                pinkyController->update();
+            }
+            else
+            {
+                pthread_mutex_lock(&mut3);
+                if(!pinkyController->key)
+                {
+                    pinkyController->grabKey();    
+                }
+                pthread_mutex_unlock(&mut3);
+
+                pthread_mutex_lock(&mut3);
+                if(!pinkyController->permit)
+                {
+                    pinkyController->grabPermit();
+                }
+                pthread_mutex_unlock(&mut3);
+            }
             ghostSync2.restart();
        }
     }
@@ -109,7 +147,26 @@ void * Inky_thread_function(void * arg)
     {
        if(ghostSync3.getElapsedTime().asSeconds() > 0.1)
        {
-            inkyController->update();
+            if(!inkyController->inHouse || (inkyController->key && inkyController->permit))
+            {
+                inkyController->update();
+            }
+            else
+            {
+                pthread_mutex_lock(&mut3);
+                if(!inkyController->key)
+                {
+                    inkyController->grabKey();    
+                }
+                pthread_mutex_unlock(&mut3);
+
+                pthread_mutex_lock(&mut3);
+                if(!inkyController->permit)
+                {
+                    inkyController->grabPermit();
+                }
+                pthread_mutex_unlock(&mut3);
+            }
             ghostSync3.restart();
        }
     }
@@ -128,7 +185,26 @@ void * Clyde_thread_function(void * arg)
     {
        if(ghostSync4.getElapsedTime().asSeconds() > 0.1)
        {
-            clydeController->update();
+            if(!clydeController->inHouse || (clydeController->key && clydeController->permit))
+            {
+                clydeController->update();
+            }
+            else
+            {
+                pthread_mutex_lock(&mut3);
+                if(!clydeController->key)
+                {
+                    clydeController->grabKey();    
+                }
+                pthread_mutex_unlock(&mut3);
+
+                pthread_mutex_lock(&mut3);
+                if(!clydeController->permit)
+                {
+                    clydeController->grabPermit();
+                }
+                pthread_mutex_unlock(&mut3);
+            }
             ghostSync4.restart();
        }
     }
@@ -167,10 +243,6 @@ int main()
 
     SharedVariables *shared = new SharedVariables;
 
-    ghostSync1.restart();
-    ghostSync2.restart();
-    ghostSync3.restart();
-    ghostSync4.restart();
 
     t1_active = true;
     pthread_create(&tid1,NULL,gameEngine_thread_function,(void*)shared);   

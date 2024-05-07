@@ -7,6 +7,10 @@ class InkyController : public GhostController
     {
         shared = (SharedVariables*) arg;
         inHouse = true;
+        key = false;
+        permit = false;
+        key_index = -1;
+        permit_index = -1;
     }
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
@@ -75,7 +79,10 @@ class InkyController : public GhostController
         shared->inkyPos.first.y = newCoordinates.second;
 
         if(inHouse && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
+        {
             inHouse = false;
+            releaseKeyPermit();
+        }
 
     }
 

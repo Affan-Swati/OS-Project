@@ -7,6 +7,10 @@ class ClydeController : public GhostController
     {
         shared = (SharedVariables*) arg;
         inHouse = true;
+        key = false;
+        permit = false;
+        key_index = -1;
+        permit_index = -1;
     }
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
@@ -59,7 +63,10 @@ class ClydeController : public GhostController
         shared->clydePos.first.y = newCoordinates.second;
 
         if(inHouse && shared->clydePos.first.x == 22 && shared->clydePos.first.y == 19)
+        {
             inHouse = false;
+            releaseKeyPermit();
+        }
 
     }
 };
