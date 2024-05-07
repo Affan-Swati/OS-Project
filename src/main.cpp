@@ -36,7 +36,7 @@ bool t5_active = false;
 bool t6_active = false;
 bool t7_active = false;
 
-Clock ghostSync1 , ghostSync2 ,ghostSync3 ,ghostSync4;
+Clock ghostSync1 , ghostSync2 ,ghostSync3 ,ghostSync4 , stateSync;
 
 void * gameEngine_thread_function(void *);
 void * UI_thread_function(void *);
@@ -215,6 +215,7 @@ void * Clyde_thread_function(void * arg)
 
 void * GhostController_thread_function(void *arg)
 {
+    SharedVariables *shared = (SharedVariables*) arg;
     t4_active = true;
     pthread_create(&tid4,NULL,Blinky_thread_function,arg); 
 
@@ -227,6 +228,19 @@ void * GhostController_thread_function(void *arg)
     t7_active = true;
     pthread_create(&tid7,NULL,Clyde_thread_function,arg); 
 
+    while(!shared->gameOver)
+    {
+        if(stateSync.getElapsedTime().asSeconds() > 0.2)
+        {
+            if(shared->ghostState == 0)
+                shared->ghostState = 1;
+            else 
+                shared->ghostState = 0;
+
+                stateSync.restart();
+        }
+
+    }
     while(t4_active);
     while(t5_active);
     while(t6_active);

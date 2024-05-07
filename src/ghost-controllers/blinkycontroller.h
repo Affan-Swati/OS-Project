@@ -54,6 +54,10 @@ class BlinkyController : public GhostController
         shared->blinkyPos.first.x = newCoordinates.first;
         shared->blinkyPos.first.y = newCoordinates.second;
 
+        // shared->gameBoard[(int)shared->blinkyPos.second.y][(int)shared->blinkyPos.second.x] = 0;
+        // shared->gameBoard[(int)shared->blinkyPos.first.y][(int)shared->blinkyPos.first.x] = 5;
+
+
         if(inHouse && shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 19)
         {
             inHouse = false;

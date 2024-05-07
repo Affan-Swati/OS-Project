@@ -14,10 +14,12 @@ struct SharedVariables
     bool permit[2] = {true,true};
 
     // first is currentPos , second is previousPos
-    pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(-1,-1)}; 
-    pair<Vector2f,Vector2f> pinkyPos  = {Vector2f(20,22) ,Vector2f(-1,-1)};
-    pair<Vector2f,Vector2f> inkyPos   = {Vector2f(24,22) ,Vector2f(-1,-1)};
-    pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(-1,-1)};
+    pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 
+    pair<Vector2f,Vector2f> pinkyPos  = {Vector2f(20,22) ,Vector2f(20,22)};
+    pair<Vector2f,Vector2f> inkyPos   = {Vector2f(24,22) ,Vector2f(24,22)};
+    pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(26,22)};
+
+    int ghostState = 0; // 0 or 1
 
    
     static const int ROWS = 50;

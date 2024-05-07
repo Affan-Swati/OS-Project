@@ -63,6 +63,9 @@ class PinkyController : public GhostController
         shared->pinkyPos.first.x = newCoordinates.first;
         shared->pinkyPos.first.y = newCoordinates.second;
 
+        // shared->gameBoard[(int)shared->pinkyPos.second.y][(int)shared->pinkyPos.second.x] = 0;
+        // shared->gameBoard[(int)shared->pinkyPos.first.y][(int)shared->pinkyPos.first.x] = 6;
+
         if(inHouse && shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 19)
         {
             inHouse = false;

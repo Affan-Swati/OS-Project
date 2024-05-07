@@ -130,6 +130,7 @@ class GameEngine
             graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window,food);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
+            animateGhosts();
             graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
             graphicsRenderer->drawGhost(window, pinky->sprite,shared->pinkyPos.first.x , shared->pinkyPos.first.y);
             graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
@@ -142,6 +143,28 @@ class GameEngine
     }
 
     private:
+
+    void animateGhosts()
+    {
+       blinky->updateTexture(determineDirection(shared->blinkyPos));
+       pinky->updateTexture(determineDirection(shared->pinkyPos));
+       inky->updateTexture(determineDirection(shared->inkyPos));
+       clyde->updateTexture(determineDirection(shared->clydePos));
+    }
+
+
+
+    int determineDirection(pair<Vector2f,Vector2f> &position)
+    {
+        if(position.first.x < position.second.x)
+            return 3;
+        else if(position.first.x > position.second.x)
+            return 1;
+        else if(position.first.y > position.second.y)
+            return 2;
+        else 
+            return 0;
+    }
     
     bool validate_move(int input)
     {

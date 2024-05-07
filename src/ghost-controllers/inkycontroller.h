@@ -78,6 +78,9 @@ class InkyController : public GhostController
         shared->inkyPos.first.x = newCoordinates.first;
         shared->inkyPos.first.y = newCoordinates.second;
 
+        // shared->gameBoard[(int)shared->inkyPos.second.y][(int)shared->inkyPos.second.x] = 0;
+        // shared->gameBoard[(int)shared->inkyPos.first.y][(int)shared->inkyPos.first.x] = 7;
+
         if(inHouse && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
         {
             inHouse = false;

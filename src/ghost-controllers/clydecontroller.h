@@ -62,6 +62,9 @@ class ClydeController : public GhostController
         shared->clydePos.first.x = newCoordinates.first;
         shared->clydePos.first.y = newCoordinates.second;
 
+        // shared->gameBoard[(int)shared->clydePos.second.y][(int)shared->clydePos.second.x] = 0;
+        // shared->gameBoard[(int)shared->clydePos.first.y][(int)shared->clydePos.first.x] = 8;
+
         if(inHouse && shared->clydePos.first.x == 22 && shared->clydePos.first.y == 19)
         {
             inHouse = false;
