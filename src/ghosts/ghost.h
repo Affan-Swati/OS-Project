@@ -13,7 +13,7 @@ class Ghost
    public:
    virtual void updateTexture(int direction) = 0;
    virtual bool isEaten() = 0;
-
+   virtual bool eatsPac() = 0;
 
    public:
     Sprite sprite;
@@ -23,7 +23,7 @@ class Ghost
     int state; // 0 / 1
     int direction; // 0 means up, 1 means right, 2 means down, 3 means left
     SharedVariables *shared;
-    Music ghostEatenSound;
+    Music ghostEatenSound ;
     Clock blink;
 
     Ghost() 

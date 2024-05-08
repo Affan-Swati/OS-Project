@@ -12,6 +12,7 @@ struct SharedVariables
     Vector2f pacPos = Vector2f(17,36);
     bool key[2] = {true,true}; // keys and permitss to exit ghost house 
     bool permit[2] = {true,true};
+    bool gameReset = false;
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 

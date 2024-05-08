@@ -81,7 +81,7 @@ class Blinky : public Ghost
         {
             if(shared->mode[0] == 2)
             {
-                if((blink.getElapsedTime().asSeconds() > 5))
+                if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB1);
@@ -112,7 +112,7 @@ class Blinky : public Ghost
         {
            if(shared->mode[0] == 2)
             {
-                if((blink.getElapsedTime().asSeconds() > 5))
+                if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB2);
@@ -148,8 +148,23 @@ class Blinky : public Ghost
 
         if(shared->blinkyPos.first.x == shared->pacPos.x && shared->blinkyPos.second.y == shared->pacPos.y)
         {
+            ghostEatenSound.stop();
             ghostEatenSound.play();
             shared->mode[0] = 3;
+            return true;
+        }
+
+        return false;
+    }
+    bool eatsPac()
+    {
+        if(shared->mode[0] != 1 && shared->mode[0] != 0)
+        {
+            return false;
+        }
+
+        if(shared->blinkyPos.first.x == shared->pacPos.x && shared->blinkyPos.second.y == shared->pacPos.y)
+        {
             return true;
         }
 

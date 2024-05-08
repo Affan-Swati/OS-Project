@@ -105,7 +105,7 @@ class Pinky : public Ghost
         {
             if(shared->mode[1] == 2)
             {
-                 if((blink.getElapsedTime().asSeconds() > 5))
+                 if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB1);
@@ -136,7 +136,7 @@ class Pinky : public Ghost
         {
            if(shared->mode[1] == 2)
             {
-                 if((blink.getElapsedTime().asSeconds() > 5))
+                 if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB2);
@@ -172,8 +172,24 @@ class Pinky : public Ghost
 
         if(shared->pinkyPos.first.x == shared->pacPos.x && shared->pinkyPos.second.y == shared->pacPos.y)
         {
+            ghostEatenSound.stop();
             ghostEatenSound.play();
             shared->mode[1] = 3;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool eatsPac()
+    {
+        if(shared->mode[1] != 1 && shared->mode[1] != 0)
+        {
+            return false;
+        }
+
+        if(shared->pinkyPos.first.x == shared->pacPos.x && shared->pinkyPos.second.y == shared->pacPos.y)
+        {
             return true;
         }
 

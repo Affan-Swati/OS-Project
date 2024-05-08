@@ -82,7 +82,7 @@ class Inky : public Ghost
         {
             if(shared->mode[2] == 2)
             {
-                 if((blink.getElapsedTime().asSeconds() > 5))
+                 if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB1);
@@ -113,7 +113,7 @@ class Inky : public Ghost
         {
            if(shared->mode[2] == 2)
             {
-                if((blink.getElapsedTime().asSeconds() > 5))
+                if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB2);
@@ -142,15 +142,31 @@ class Inky : public Ghost
 
     }
 
-     bool isEaten()
+    bool isEaten()
     {
         if(shared->mode[2] != 2)
             return false;
 
         if(shared->inkyPos.first.x == shared->pacPos.x && shared->inkyPos.second.y == shared->pacPos.y)
         {
+            ghostEatenSound.stop();
             ghostEatenSound.play();
             shared->mode[2] = 3;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool eatsPac()
+    {
+        if(shared->mode[2] != 1 && shared->mode[2] != 0)
+        {
+            return false;
+        }
+
+        if(shared->inkyPos.first.x == shared->pacPos.x && shared->inkyPos.second.y == shared->pacPos.y)
+        {
             return true;
         }
 

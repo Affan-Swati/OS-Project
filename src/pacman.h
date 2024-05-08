@@ -24,6 +24,7 @@ class Pacman
     int state; // 0 means open mouth , 1 means half closed mouth , 2 means full closed mouth
     int direction; //0 means up , 1 means right , 2 means down , 3 means left
     Clock clk; 
+    int lives;
     int score;
     
     
@@ -55,6 +56,7 @@ class Pacman
         sprite.setScale(1.4,1.5); // DONT CHANGE THE SCALE VALUES , THEY ARE PIXEL PERFECT :") 1.4 x 1.7
         clk.restart();
         score = 0;
+        lives = 3;
 
     }
 

@@ -27,15 +27,15 @@ class GameEngine
     
     SharedVariables *shared;
     GraphicsRenderer *graphicsRenderer;
-    Pacman *pacman;;
+    Pacman *pacman;
     Ghost *blinky , *pinky ,*inky ,*clyde; // polymorphism 
     // create 4 ghosts here
-    float speed;;
+    float speed;
 
     Sprite food , logo;
     Texture tex , tex_logo;
 
-    Music siren , eat1,eat2  , eatPower , frightenSound;
+    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound;
     Clock frightenClock;
    
     bool frightenStart , frightenEnd;
@@ -65,6 +65,7 @@ class GameEngine
         eat2.openFromFile("../resources/sounds/eat.wav");
         eat1.openFromFile("../resources/sounds/PelletEat2.wav");
         frightenSound.openFromFile("../resources/sounds/blue.wav");
+        homeRunningSound.openFromFile("../resources/sounds/homerunning.wav");
         //frightenSound.setVolume(3);
 
         eat1.setVolume(50.f);
@@ -104,9 +105,19 @@ class GameEngine
         
         while (window.isOpen())
         {
-
             window.clear();
             Event event;
+
+            if(pacman->lives == 0)
+            {
+                siren.stop();
+                eat1.stop();
+                eat2.stop();
+                frightenSound.stop();
+                homeRunningSound.stop();
+                shared->gameOver = true;
+                window.close();
+            }
             while (window.pollEvent(event))
             {
                 if (event.type == Event::Closed)
@@ -114,6 +125,8 @@ class GameEngine
                     siren.stop();
                     eat1.stop();
                     eat2.stop();
+                    frightenSound.stop();
+                    homeRunningSound.stop();
                     shared->gameOver = true;
                     window.close();
                 }
@@ -137,10 +150,21 @@ class GameEngine
             inky->isEaten();
             clyde->isEaten();
 
+            if(isAnyMode(3) && homeRunningSound.getStatus() != SoundSource::Playing)
+            {
+                homeRunningSound.setVolume(500);
+                homeRunningSound.play();
+                homeRunningSound.setLoop(true);
+            }
+
+            else if(!isAnyMode(3) && homeRunningSound.getStatus() == SoundSource::Playing )
+                homeRunningSound.stop();
+
+            pacCollisionWithGhost(window);
             text.setString("SCORE: " + to_string(pacman->score));
             graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
-            graphicsRenderer->drawFood(window,food);
+            graphicsRenderer->drawFood(window);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
             animateGhosts();
             graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
@@ -164,7 +188,43 @@ class GameEngine
        clyde->updateTexture(determineDirection(shared->clydePos));
     }
 
+    void pacCollisionWithGhost(RenderWindow &window)
+    {
+        if(blinky->eatsPac() || pinky->eatsPac() || inky->eatsPac() || clyde->eatsPac())
+        {
+            pthread_mutex_lock(&mut);
+            pacman->lives -= 1;
+            int x = shared->pacPos.x;
+            int y = shared->pacPos.y;
+            siren.stop();
+            graphicsRenderer->pacDeathAnimation(x,y,window);
+            shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
+            shared->pacDirection  = 3;
+            shared->pacPos = Vector2f(17,36);
+            pacman->position = Vector2f(17,36);
+            shared->key[0] = true ; shared->key[1] = true; // keys and permitss to exit ghost house 
+            shared->permit[0] = true ; shared->permit[1] = true; 
+            shared->gameReset = true;
+            // first is currentPos , second is previousPos
+            shared->blinkyPos.first = Vector2f(18,22); shared->blinkyPos.second = Vector2f(18,22); 
+            shared->pinkyPos.first = Vector2f(20,22); shared->pinkyPos.second = Vector2f(20,22);
+            shared->inkyPos.first  = Vector2f(24,22); shared->inkyPos.second = Vector2f(24,22);
+            shared->clydePos.first = Vector2f(26,22); shared->clydePos.second = Vector2f(26,22);
+            shared->ghostState = 0; // 0 or 1
+            shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
+            pthread_mutex_unlock(&mut);
 
+            Clock clk;
+            clk.restart();
+
+            while(clk.getElapsedTime().asSeconds() < 3);
+            siren.play();
+            siren.setLoop(true);
+            if(pacman->lives == 0)
+                shared->gameOver = true;
+            shared->gameReset = false;
+        }
+    }
 
     int determineDirection(pair<Vector2f,Vector2f> &position)
     {
@@ -259,7 +319,7 @@ class GameEngine
             {
                 if(originalX == shared->frightenPallets[1].second)
                 {
-                    shared->frightenPallets[1].first = -1;
+                    shared->frightenPallets[1].second = -1;
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -271,7 +331,7 @@ class GameEngine
 
                 else if(originalX == shared->frightenPallets[0].second)
                 {
-                    shared->frightenPallets[0].first = -1;
+                    shared->frightenPallets[0].second = -1;
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -286,7 +346,7 @@ class GameEngine
             {
                 if(originalX== shared->frightenPallets[2].second)
                 {
-                    shared->frightenPallets[2].first = -1;
+                    shared->frightenPallets[2].second = -1;
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -298,7 +358,7 @@ class GameEngine
 
                 else if(originalX == shared->frightenPallets[3].second)
                 {
-                    shared->frightenPallets[3].first = -1;
+                    shared->frightenPallets[3].second = -1;
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -309,7 +369,7 @@ class GameEngine
                 }
             }
 
-            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 10 && !frightenEnd)
+            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 && !frightenEnd)
             {
                 frightenEnd = true;
                 frightenStart = false;

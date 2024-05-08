@@ -82,7 +82,7 @@ class Clyde : public Ghost
         {
             if(shared->mode[3] == 2)
             {
-                 if((blink.getElapsedTime().asSeconds() > 5))
+                 if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB1);
@@ -113,7 +113,7 @@ class Clyde : public Ghost
         {
            if(shared->mode[3] == 2)
             {
-                 if((blink.getElapsedTime().asSeconds() > 5))
+                 if((blink.getElapsedTime().asSeconds() > 3))
                     BlinkSprite();
                 else
                 sprite.setTexture(texB2);
@@ -142,15 +142,31 @@ class Clyde : public Ghost
 
     }
 
-     bool isEaten()
+    bool isEaten()
     {
         if(shared->mode[3] != 2)
             return false;
 
         if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
         {
+            ghostEatenSound.stop();
             ghostEatenSound.play();
             shared->mode[3] = 3;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool eatsPac()
+    {
+        if(shared->mode[3] != 1 && shared->mode[3] != 0)
+        {
+            return false;
+        }
+
+        if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
+        {
             return true;
         }
 

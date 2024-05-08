@@ -131,4 +131,13 @@ class GhostController
         return (x == prevPosition.x && y == prevPosition.y );
     }
 
+    protected:
+    void checkReset()
+    {
+        if(shared->gameReset)
+        {
+            inHouse = true;
+        }
+    }
+
 };

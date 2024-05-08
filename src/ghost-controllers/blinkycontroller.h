@@ -17,6 +17,7 @@ class BlinkyController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY , int direction)
     {
+        checkReset();
         if(inHouse)
         {
             return make_pair(19,22); // house exit
@@ -63,6 +64,8 @@ class BlinkyController : public GhostController
 
     void update() 
     {
+        if(shared->gameReset)
+            return;
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;

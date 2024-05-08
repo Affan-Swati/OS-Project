@@ -21,6 +21,7 @@ class GraphicsRenderer
         Sprite sprite;
         Texture tex , dummy_tex;
         SharedVariables *shared;
+        Clock time;
 
         GraphicsRenderer(SharedVariables *shared) 
         {
@@ -28,9 +29,10 @@ class GraphicsRenderer
             sprite.setTexture(tex);     
             sprite.setScale(1,1);
             this->shared = shared;
+            time.restart();
         }
 
-        void drawFood(RenderWindow &window , Sprite &sprite)
+        void drawFood(RenderWindow &window)
         {   
             RectangleShape food;
             food.setSize(Vector2f(4,4));
@@ -59,12 +61,18 @@ class GraphicsRenderer
 
             for(int i = 0 ; i < shared->frightenPallets.size(); i++)
             {
-                if(shared->frightenPallets[i].first == -1)
+                if(shared->frightenPallets[i].second == -1 || (time.getElapsedTime().asSeconds() < 0.5))
+                {
                     continue;
+                }
 
                 circle.setPosition(shared->frightenPallets[i].second * CELLSIZE_X + xOffset , shared->frightenPallets[i].first * CELLSIZE_Y + 4);
                 window.draw(circle);
             }
+
+            if(time.getElapsedTime().asSeconds() > 0.7)
+            time.restart();
+
         }
 
          void drawPacMan(RenderWindow &window , Sprite& sprite , int x , int y , int direction)
@@ -77,6 +85,25 @@ class GraphicsRenderer
 
             sprite.setPosition(x * CELLSIZE_X + offset_X, y * CELLSIZE_Y + offset_Y);
             window.draw(sprite);
+
+            // float change = 1;
+            // if(sprite.getPosition().x < x * CELLSIZE_X)
+            //     sprite.setPosition(x * CELLSIZE_X + offset_X + change, y * CELLSIZE_Y + offset_Y);
+
+            
+            // else if(sprite.getPosition().x > x * CELLSIZE_X)
+            //      sprite.setPosition(x * CELLSIZE_X + offset_X - change, y * CELLSIZE_Y + offset_Y);
+            
+            // else if(sprite.getPosition().y < y *CELLSIZE_Y)
+            //      sprite.setPosition(x * CELLSIZE_X + offset_X, y * CELLSIZE_Y + offset_Y + change);
+            
+            // else if(sprite.getPosition().y > y * CELLSIZE_Y)
+            //      sprite.setPosition(x * CELLSIZE_X + offset_X , y * CELLSIZE_Y + offset_Y - change);
+            
+            // else
+            // sprite.setPosition(x * CELLSIZE_X + offset_X , y * CELLSIZE_Y + offset_Y);
+
+            // window.draw(sprite); 
         }
 
         void drawMaze(RenderWindow &window) 
@@ -125,8 +152,55 @@ class GraphicsRenderer
         void drawGhost(RenderWindow &window , Sprite& sprite , int x , int y)
         {
             //int currentX = 
+            // float change = 0;
+            // if(sprite.getPosition().x < x * CELLSIZE_X)
+            //     sprite.setPosition(x * CELLSIZE_X + change, y * CELLSIZE_Y );
+            
+            // else if(sprite.getPosition().x > x * CELLSIZE_X)
+            //     sprite.setPosition(x * CELLSIZE_X - change ,y * CELLSIZE_Y);
+            
+            // else if(sprite.getPosition().y < y *CELLSIZE_Y)
+            //     sprite.setPosition(x * CELLSIZE_X,y * CELLSIZE_Y + change);
+            
+            // else if(sprite.getPosition().y > y * CELLSIZE_Y)
+            //     sprite.setPosition(x * CELLSIZE_X ,y * CELLSIZE_Y - change);
+            
+            // else
             sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
+
             window.draw(sprite);            
+        }
+
+        void pacDeathAnimation(int x , int y , RenderWindow &window)
+        {
+            Texture tex , death_sheet;
+            Sprite sprite;
+            Clock clk;
+            Music dead;
+
+            dead.openFromFile("../resources/sounds/pacmanDeath.wav");
+            death_sheet.loadFromFile("../resources/img/other/Pacman.png");
+
+            float height = 13.8;
+            float width = 15.91;
+            clk.restart();
+            sprite.setScale(2,2);
+            dead.play();
+            for(int i = 0 ; i < 12 ; i++)
+            {   
+                while(clk.getElapsedTime().asSeconds() < 0.1);
+                clk.restart();
+
+                window.clear();
+                drawMap(window);
+                drawFood(window);
+                drawMaze(window);
+                tex.loadFromImage(death_sheet.copyToImage(), (IntRect)FloatRect(i * width + 1.5 , 4 * height ,width , height));
+                sprite.setTexture(tex);
+                sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
+                window.draw(sprite);
+                window.display();
+            }
         }
 
         void drawMap(RenderWindow &window )
