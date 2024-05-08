@@ -76,6 +76,66 @@ class GameEngine
 
     }
     
+    void startAnimation(RenderWindow &window)
+    {
+        Clock animationClock;
+        Music animationMusic;
+        animationMusic.openFromFile("../resources/sounds/intro.wav");
+        animationClock.restart();
+
+        animationMusic.setVolume(100);
+        animationMusic.play();
+        animationClock.restart();
+        while(animationClock.getElapsedTime().asSeconds() < 4)
+        {
+            window.clear();
+            graphicsRenderer->drawMaze(window);
+            graphicsRenderer->drawMap(window);
+            graphicsRenderer->drawFood(window);
+            pacman->getInput('s');
+            graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
+
+            if(animationClock.getElapsedTime().asSeconds() < 1)
+            {
+                blinky->updateTexture(3);
+                pinky->updateTexture(0);
+                inky->updateTexture(1);
+                clyde->updateTexture(2);
+            }
+            else if(animationClock.getElapsedTime().asSeconds() < 2)
+            {
+                blinky->updateTexture(2);
+                pinky->updateTexture(1);
+                inky->updateTexture(2);
+                clyde->updateTexture(3);
+            }
+            else if(animationClock.getElapsedTime().asSeconds() < 3)
+            {
+                blinky->updateTexture(1);
+                pinky->updateTexture(2);
+                inky->updateTexture(3);
+                clyde->updateTexture(0);
+            } 
+            else
+            {
+                blinky->updateTexture(0);
+                pinky->updateTexture(3);
+                inky->updateTexture(0);
+                clyde->updateTexture(1);
+            }
+
+            graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
+            graphicsRenderer->drawGhost(window, pinky->sprite,shared->pinkyPos.first.x , shared->pinkyPos.first.y);
+            graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
+            graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y); 
+            window.draw(logo);
+            graphicsRenderer->drawLives(window,pacman->lives);
+            window.display();  
+        }
+        animationMusic.stop();
+        shared->gameStarted = true;
+    }
+
     void start_game()
     {
         RenderWindow window(VideoMode(695,900), "OS PROJECT");
@@ -97,6 +157,7 @@ class GameEngine
         text2.setOutlineThickness(3.0f);
         text2.setFillColor(Color::Blue);
         
+        startAnimation(window);
 
         Clock clk;
         float time = 0;        
@@ -194,6 +255,7 @@ class GameEngine
         if(blinky->eatsPac() || pinky->eatsPac() || inky->eatsPac() || clyde->eatsPac())
         {
             pthread_mutex_lock(&mut);
+            shared->gameReset = true;
             pacman->lives -= 1;
             int x = shared->pacPos.x;
             int y = shared->pacPos.y;
@@ -201,7 +263,7 @@ class GameEngine
             if(homeRunningSound.getStatus() == SoundStream :: Playing)
                 homeRunningSound.stop();
 
-            graphicsRenderer->pacDeathAnimation(x,y,window);
+            graphicsRenderer->pacDeathAnimation(x,y,window,logo,pacman->lives);
             shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
             shared->pacDirection  = 3;
             pacman->setDirection(3);
@@ -219,14 +281,17 @@ class GameEngine
             shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
             pthread_mutex_unlock(&mut);
 
-            Clock clk;
-            clk.restart();
-
-            while(clk.getElapsedTime().asSeconds() < 1);
-            siren.play();
-            siren.setLoop(true);
             if(pacman->lives == 0)
+
                 shared->gameOver = true;
+            
+            else
+            {
+                startAnimation(window);
+                siren.play();
+                siren.setLoop(true);
+            }
+        
             shared->gameReset = false;
 
         }

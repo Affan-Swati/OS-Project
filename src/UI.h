@@ -24,6 +24,9 @@ class UI
     {
        while(!shared->gameOver)
        {
+            if(!shared->gameStarted || shared->gameReset)
+            continue;
+        
             char input = '*';  // * means user pressed soemthing other than w a s d
             bool w,a,s,d;
 

@@ -171,7 +171,7 @@ class GraphicsRenderer
             window.draw(sprite);            
         }
 
-        void pacDeathAnimation(int x , int y , RenderWindow &window)
+        void pacDeathAnimation(int x , int y , RenderWindow &window ,Sprite &logo , int lives)
         {
             Texture tex , death_sheet;
             Sprite sprite;
@@ -211,6 +211,8 @@ class GraphicsRenderer
                 sprite.setTexture(tex);
                 sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
                 window.draw(sprite);
+                window.draw(logo);
+                this->drawLives(window,lives);
                 window.display();
             }
         }

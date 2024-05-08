@@ -68,9 +68,14 @@ void * Blinky_thread_function(void * arg)
 {
     GhostController *blinkyController = new BlinkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
+    while(!shared->gameStarted); // wait fro start animation
+
     float delay = 0.1;
     while(!shared->gameOver)
     {
+        if(!shared->gameStarted || shared->gameReset)
+        continue;
+
        if(shared->mode[0] == 2)
        {
             delay = 0.2;
@@ -120,10 +125,15 @@ void * Pinky_thread_function(void * arg)
 {
     GhostController *pinkyController = new PinkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
+    while(!shared->gameStarted); // wait fro start animation
+
     float delay = 0.1;
 
     while(!shared->gameOver)
     {
+        if(!shared->gameStarted || shared->gameReset)
+        continue;
+
        if(shared->mode[1] == 2)
        {
             delay = 0.2;
@@ -173,10 +183,15 @@ void * Inky_thread_function(void * arg)
 {
     GhostController *inkyController = new InkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
+
+    while(!shared->gameStarted); // wait fro start animation
     
     float delay = 0.1;
     while(!shared->gameOver)
     {
+       if(!shared->gameStarted || shared->gameReset)
+            continue;
+
        if(shared->mode[2] == 2)
        {
             delay = 0.2;
@@ -228,10 +243,15 @@ void * Clyde_thread_function(void * arg)
     GhostController *clydeController = new ClydeController(arg);
 
     SharedVariables *shared = (SharedVariables *)arg;
+
+    while(!shared->gameStarted); // wait fro start animation
     
     float delay = 0.1;
     while(!shared->gameOver)
     {
+        if(!shared->gameStarted || shared->gameReset)
+        continue;
+
        if(shared->mode[3] == 2)
        {
             delay = 0.2;
@@ -279,6 +299,7 @@ void * Clyde_thread_function(void * arg)
 void * GhostController_thread_function(void *arg)
 {
     SharedVariables *shared = (SharedVariables*) arg;
+
     t4_active = true;
     pthread_create(&tid4,NULL,Blinky_thread_function,arg); 
 

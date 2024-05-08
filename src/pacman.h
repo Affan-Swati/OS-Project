@@ -56,7 +56,7 @@ class Pacman
         sprite.setScale(1.4,1.5); // DONT CHANGE THE SCALE VALUES , THEY ARE PIXEL PERFECT :") 1.4 x 1.7
         clk.restart();
         score = 0;
-        lives = 3;
+        lives = 5;
 
     }
 

@@ -12,6 +12,7 @@ class Blinky : public Ghost
         sprite.setScale(1.75,1.75);
         state = 0;
         ghostEatenSound.openFromFile(".././resources/sounds/monsterEat.wav");
+        direction = 0;
     }
 
     private:
