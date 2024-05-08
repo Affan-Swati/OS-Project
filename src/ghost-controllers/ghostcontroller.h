@@ -114,10 +114,10 @@ class GhostController
         // Check if the position is within the boundaries of the game board
         if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
         {
-            if(shared->gameBoard[y][x] != 1 && shared->gameBoard[y][x] != 2 &&
-               shared->gameBoard[y + 1][x] != 1 && shared->gameBoard[y + 1][x] != 2 &&
-               shared->gameBoard[y][x + 1] != 1 && shared->gameBoard[y][x + 1] != 2 &&
-               shared->gameBoard[y + 1][x + 1] != 1 && shared->gameBoard[y + 1][x + 1] != 2
+            if(shared->gameBoard[y][x] != 1 &&
+               shared->gameBoard[y + 1][x] != 1 &&
+               shared->gameBoard[y][x + 1] != 1 &&
+               shared->gameBoard[y + 1][x + 1] != 1
              ) 
                 return false;
         }

@@ -91,7 +91,7 @@ class GameEngine
 
         text2.setFont(font);
         text2.setPosition(Vector2f(240,430));
-        text2.setString("");
+        text2.setString("WHAT THE SIGMA");
         text2.setScale(0.8,0.8);
         text2.setOutlineColor(Color::Yellow);
         text2.setOutlineThickness(3.0f);
@@ -137,7 +137,7 @@ class GameEngine
             pthread_mutex_unlock(&mut);
 
 
-            if (clk.getElapsedTime().asSeconds() > 0.1) // delay for player movement
+            if (clk.getElapsedTime().asSeconds() > 0.08) // delay for player movement
             {
                 if(!validate_move(input))
                     validate_move(pacman->direction);
@@ -174,6 +174,7 @@ class GameEngine
             window.draw(text);
             //window.draw(text2);
             window.draw(logo);
+            graphicsRenderer->drawLives(window,pacman->lives);
             window.display();
         }
     }
@@ -197,9 +198,13 @@ class GameEngine
             int x = shared->pacPos.x;
             int y = shared->pacPos.y;
             siren.stop();
+            if(homeRunningSound.getStatus() == SoundStream :: Playing)
+                homeRunningSound.stop();
+
             graphicsRenderer->pacDeathAnimation(x,y,window);
             shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
             shared->pacDirection  = 3;
+            pacman->setDirection(3);
             shared->pacPos = Vector2f(17,36);
             pacman->position = Vector2f(17,36);
             shared->key[0] = true ; shared->key[1] = true; // keys and permitss to exit ghost house 
@@ -217,12 +222,13 @@ class GameEngine
             Clock clk;
             clk.restart();
 
-            while(clk.getElapsedTime().asSeconds() < 3);
+            while(clk.getElapsedTime().asSeconds() < 1);
             siren.play();
             siren.setLoop(true);
             if(pacman->lives == 0)
                 shared->gameOver = true;
             shared->gameReset = false;
+
         }
     }
 

@@ -78,7 +78,7 @@ void * Blinky_thread_function(void * arg)
 
        else if(shared->mode[0] == 3)
        {
-            delay = 0.05;
+            delay = 0.08;
        }
        else
        {
@@ -131,7 +131,7 @@ void * Pinky_thread_function(void * arg)
 
        else if(shared->mode[1] == 3)
        {
-            delay = 0.05;
+            delay = 0.08;
        }
        else
        {
@@ -184,7 +184,7 @@ void * Inky_thread_function(void * arg)
 
        else if(shared->mode[2] == 3)
        {
-            delay = 0.05;
+            delay = 0.08;
        }
 
        else 
@@ -238,7 +238,7 @@ void * Clyde_thread_function(void * arg)
        }
        else if(shared->mode[3] == 3)
        {
-            delay = 0.05;
+            delay = 0.08;
        }
        else
        {
@@ -293,7 +293,7 @@ void * GhostController_thread_function(void *arg)
 
     while(!shared->gameOver)
     {
-        if(stateSync.getElapsedTime().asSeconds() > 0.2)
+        if(stateSync.getElapsedTime().asSeconds() > 0.1)
         {
             if(shared->ghostState == 0)
                 shared->ghostState = 1;

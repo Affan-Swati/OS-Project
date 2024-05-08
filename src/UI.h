@@ -27,10 +27,10 @@ class UI
             char input = '*';  // * means user pressed soemthing other than w a s d
             bool w,a,s,d;
 
-            w = Keyboard::isKeyPressed(Keyboard::W);
-            a = Keyboard::isKeyPressed(Keyboard::A);
-            s = Keyboard::isKeyPressed(Keyboard::S);
-            d = Keyboard::isKeyPressed(Keyboard::D);
+            w = Keyboard::isKeyPressed(Keyboard::Up);
+            a = Keyboard::isKeyPressed(Keyboard::Left);
+            s = Keyboard::isKeyPressed(Keyboard::Down);
+            d = Keyboard::isKeyPressed(Keyboard::Right);
 
             if(w)
             {

@@ -8,6 +8,7 @@ struct SharedVariables
 {
     char userInput  = 'a';
     bool gameOver   = false;
+    bool gameStarted = false;
     int pacDirection   = 3;
     Vector2f pacPos = Vector2f(17,36);
     bool key[2] = {true,true}; // keys and permitss to exit ghost house 

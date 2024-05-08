@@ -38,7 +38,7 @@ class Ghost
 
         if(shared->ghostState == 0)
         {
-            if((int)time % 2)
+            if((int)time < 4)
                 sprite.setTexture(texB1);
             else
                 sprite.setTexture(texW1);
@@ -46,7 +46,7 @@ class Ghost
         }
         else 
         {
-            if((int)time % 2)
+            if((int)time < 4)
                 sprite.setTexture(texB2);
             else
                 sprite.setTexture(texW2);

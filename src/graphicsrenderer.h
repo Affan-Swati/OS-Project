@@ -186,7 +186,7 @@ class GraphicsRenderer
             clk.restart();
             sprite.setScale(2,2);
             dead.play();
-            for(int i = 0 ; i < 12 ; i++)
+            for(int i = 0 ; i < 14 ; i++)
             {   
                 while(clk.getElapsedTime().asSeconds() < 0.1);
                 clk.restart();
@@ -195,7 +195,19 @@ class GraphicsRenderer
                 drawMap(window);
                 drawFood(window);
                 drawMaze(window);
-                tex.loadFromImage(death_sheet.copyToImage(), (IntRect)FloatRect(i * width + 1.5 , 4 * height ,width , height));
+
+                int off = i;
+                if(i == 12 || i == 13)
+                {
+                    off = 11;
+                }
+
+                if(i != 12)
+                tex.loadFromImage(death_sheet.copyToImage(), (IntRect)FloatRect(off * width  , 4 * height ,width , height));
+
+                else
+                tex.loadFromImage(death_sheet.copyToImage(), (IntRect)FloatRect(off * width  , 3 * height ,width , height));
+
                 sprite.setTexture(tex);
                 sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
                 window.draw(sprite);
@@ -206,6 +218,31 @@ class GraphicsRenderer
         void drawMap(RenderWindow &window )
         {
             window.draw(sprite);
+        }
+
+        void drawLives( RenderWindow &window, int lives)
+        {
+            Texture tex , sprite_sheet;
+            Sprite  live;
+
+            sprite_sheet.loadFromFile("../resources/img/other/Pacman.png");
+            
+            float height = 13.8;
+            float width = 15.91;
+            tex.loadFromImage(sprite_sheet.copyToImage(), (IntRect)FloatRect(1 * width , 1 * height ,width , height + 2));
+            live.setTexture(tex);
+            live.setPosition(0,750);
+            live.setScale(2,2);
+            float offset = 10;
+            for(int i = 0 ; i < lives ; i++)
+            {   
+                live.setPosition(offset,750);
+                window.draw(live);
+                offset += 28;
+            }
+
+
+
         }
 
 };

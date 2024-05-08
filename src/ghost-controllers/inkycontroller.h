@@ -15,10 +15,9 @@ class InkyController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
     {
-        checkReset();
         if(inHouse)
         {
-            return make_pair(19,22); // house exit
+            return make_pair(22,19); // house exit
         }
 
         if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
@@ -85,9 +84,8 @@ class InkyController : public GhostController
 
     void update() 
     {
-         if(shared->gameReset)
-            return;
-            
+        checkReset();
+
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
@@ -120,6 +118,12 @@ class InkyController : public GhostController
 
         // shared->gameBoard[(int)shared->inkyPos.second.y][(int)shared->inkyPos.second.x] = 0;
         // shared->gameBoard[(int)shared->inkyPos.first.y][(int)shared->inkyPos.first.x] = 7;
+
+        if(shared->mode[2] == 3 && shared->inkyPos.first.x == 30 && shared->inkyPos.first.y == 32)
+        {
+            shared->inkyPos.first.x = 30;  
+            shared->inkyPos.first.y = 30;
+        }
 
         if(inHouse && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
         {

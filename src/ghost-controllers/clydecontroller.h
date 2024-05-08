@@ -15,10 +15,9 @@ class ClydeController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
     {
-        checkReset();
         if(inHouse)
         {
-            return make_pair(20,22); // house exit
+            return make_pair(22,19); // house exit
         }
 
         if(shared->clydePos.first.x == 22 && shared->clydePos.first.y == 22)
@@ -69,6 +68,8 @@ class ClydeController : public GhostController
 
     void update() 
     {
+        checkReset();
+
          if(shared->gameReset)
             return;
             
@@ -101,6 +102,12 @@ class ClydeController : public GhostController
 
         shared->clydePos.first.x = newCoordinates.first;
         shared->clydePos.first.y = newCoordinates.second;
+
+        if(shared->mode[3] == 3 && shared->clydePos.first.x == 30 && shared->clydePos.first.y == 32)
+        {
+            shared->clydePos.first.x = 30;  
+            shared->clydePos.first.y = 30;
+        }
 
         // shared->gameBoard[(int)shared->clydePos.second.y][(int)shared->clydePos.second.x] = 0;
         // shared->gameBoard[(int)shared->clydePos.first.y][(int)shared->clydePos.first.x] = 8;
