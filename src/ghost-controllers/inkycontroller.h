@@ -20,6 +20,42 @@ class InkyController : public GhostController
             return make_pair(19,22); // house exit
         }
 
+        if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
+        {
+            inHouse = true;
+            shared->mode[2] = 0;
+        }
+
+        if(shared->mode[2] == 3)
+        {
+            return make_pair(22,22);
+        }
+
+        if(shared->mode[2] == 2) // frighten mode set
+        {
+            int random = rand() % 4;
+
+            if(random == 0)
+            {
+                return make_pair(shared->inkyPos.first.x,shared->inkyPos.first.y - 1);
+            }
+
+            else if(random == 1)
+            {
+                return make_pair(shared->inkyPos.first.x + 1,shared->inkyPos.first.y );
+            }
+
+            else if(random == 2)
+            {
+                return make_pair(shared->inkyPos.first.x,shared->inkyPos.first.y + 1);
+            }
+
+            else 
+            {
+                return make_pair(shared->inkyPos.first.x - 1,shared->inkyPos.first.y);
+            }
+        }
+
         int newX = pacmanX;
         int newY = pacmanY;
 
@@ -52,7 +88,7 @@ class InkyController : public GhostController
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->inkyPos);
+        vector<pair<int,int>> moves = findMoves(shared->inkyPos,shared->mode[2]);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 

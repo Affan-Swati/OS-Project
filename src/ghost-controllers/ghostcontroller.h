@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <time.h>
 
 using namespace std;
 using namespace sf;
@@ -25,7 +27,7 @@ class GhostController
     {
     }
 
-    vector<pair<int,int>> findMoves(pair<Vector2f,Vector2f> &ghostPosition) 
+    vector<pair<int,int>> findMoves(pair<Vector2f,Vector2f> &ghostPosition , int mode) 
     {
         int nextX = ghostPosition.first.x;
         int nextY = ghostPosition.first.y;
@@ -42,12 +44,12 @@ class GhostController
             moves.push_back(make_pair(nextX - 1 , nextY));
         }
 
-        if(!checkCollisionGhost(nextX, nextY + 1) && !reverse(nextX  , nextY + 1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX, nextY + 1) && !reverse(nextX , nextY + 1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY + 1));
         }
 
-        if(!checkCollisionGhost(nextX , nextY - 1) && !reverse(nextX , nextY - 1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX , nextY - 1) && !reverse(nextX , nextY -1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY - 1));
         }

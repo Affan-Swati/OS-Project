@@ -9,8 +9,12 @@ using namespace sf;
 using namespace std;
 
 class Ghost 
-{
-   
+{   
+   public:
+   virtual void updateTexture(int direction) = 0;
+   virtual bool isEaten() = 0;
+
+
    public:
     Sprite sprite;
     Texture sprSheet;
@@ -19,60 +23,35 @@ class Ghost
     int state; // 0 / 1
     int direction; // 0 means up, 1 means right, 2 means down, 3 means left
     SharedVariables *shared;
+    Music ghostEatenSound;
+    Clock blink;
 
     Ghost() 
     {
         
     }
 
-    void updateTexture(int direction)
+    void BlinkSprite()
     {
+        float time = blink.getElapsedTime().asSeconds() - (int)blink.getElapsedTime().asSeconds();
+        time *= 10;
+
         if(shared->ghostState == 0)
         {
-            if(direction == 0)
-            {
-                sprite.setTexture(texU1);
-            }
-
-            else if(direction == 1)
-            {
-                sprite.setTexture(texR1);
-            }
-
-            else if(direction == 2)
-            {
-                sprite.setTexture(texD1);
-            }
-
+            if((int)time % 2)
+                sprite.setTexture(texB1);
             else
-            {
-                sprite.setTexture(texL1);
-            }
+                sprite.setTexture(texW1);
+                
         }
-
-        else if(shared->ghostState == 1)
+        else 
         {
-            if(direction == 0)
-            {
-                sprite.setTexture(texU2);
-            }
-
-            else if(direction == 1)
-            {
-                sprite.setTexture(texR2);
-            }
-
-            else if(direction == 2)
-            {
-                sprite.setTexture(texD2);
-            }
-
+            if((int)time % 2)
+                sprite.setTexture(texB2);
             else
-            {
-                sprite.setTexture(texL2);
-            }
+                sprite.setTexture(texW2);
+                
         }
-
     }
 };
 

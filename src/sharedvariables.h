@@ -18,9 +18,10 @@ struct SharedVariables
     pair<Vector2f,Vector2f> pinkyPos  = {Vector2f(20,22) ,Vector2f(20,22)};
     pair<Vector2f,Vector2f> inkyPos   = {Vector2f(24,22) ,Vector2f(24,22)};
     pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(26,22)};
-
     int ghostState = 0; // 0 or 1
+    int mode[4] = {0,0,0,0}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
 
+    vector<pair<int,int>> frightenPallets;
    
     static const int ROWS = 50;
     static const int COLS = 46; 

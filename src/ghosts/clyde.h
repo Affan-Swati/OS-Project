@@ -11,6 +11,8 @@ class Clyde : public Ghost
         shared = (SharedVariables *)arg;
         sprite.setScale(1.75,1.75);
         state = 0;
+        ghostEatenSound.openFromFile(".././resources/sounds/monsterEat.wav");
+
     }
 
 
@@ -28,5 +30,130 @@ class Clyde : public Ghost
         texU2.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(5 * width + 1.5, 3 * height + 3 ,width  , height));
         texD1.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(6 * width + 1.5, 3 * height + 3 ,width  , height));
         texD2.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(7 * width + 1.5, 3 * height + 3 ,width   ,height));
+
+        texB1.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(8  * width + 1.5 , 0 * height ,width  ,height));
+        texB2.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(9  * width + 1.5 , 0 * height ,width  ,height));
+        texW1.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(10 * width + 1.5 , 0 * height ,width  ,height));
+        texW2.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(11 * width + 1.5 , 0 * height ,width  ,height));
+        texER.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(8  * width + 1.5 , 1 * height + 1.5 ,width  ,height));
+        texEL.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(9  * width + 1.5 , 1 * height + 1.5 ,width  ,height));
+        texEU.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(10  * width + 1.5 , 1 * height + 1.5 ,width  ,height));
+        texED.loadFromImage(sprSheet.copyToImage(), (IntRect)FloatRect(11 * width + 1.5 , 1 * height + 1.5 ,width  ,height));
+    }
+
+    void updateTexture(int direction)
+    {
+        // if(shared->mode == 2 && !clock_restarted)
+        // {
+        //     clk.restart();
+        //     clock_restarted = true;
+        // }
+
+        // if(clk.getElapsedTime().asSeconds() > 10)
+        // {
+        //     clock_restarted = false;
+        // }
+
+        if(shared->mode[3] == 3)
+        {
+            if(direction == 0)
+            {
+                sprite.setTexture(texEU);
+            }
+
+            else if(direction == 1)
+            {
+                sprite.setTexture(texER);
+            }
+
+            else if(direction == 2)
+            {
+                sprite.setTexture(texED);
+            }
+
+            else
+            {
+                sprite.setTexture(texEL);
+            }
+
+        }
+
+        else if(shared->ghostState == 0)
+        {
+            if(shared->mode[3] == 2)
+            {
+                 if((blink.getElapsedTime().asSeconds() > 5))
+                    BlinkSprite();
+                else
+                sprite.setTexture(texB1);
+            }
+
+            else if(direction == 0)
+            {
+                sprite.setTexture(texU1);
+            }
+
+            else if(direction == 1)
+            {
+                sprite.setTexture(texR1);
+            }
+
+            else if(direction == 2)
+            {
+                sprite.setTexture(texD1);
+            }
+
+            else
+            {
+                sprite.setTexture(texL1);
+            }
+        }
+
+        else if(shared->ghostState == 1)
+        {
+           if(shared->mode[3] == 2)
+            {
+                 if((blink.getElapsedTime().asSeconds() > 5))
+                    BlinkSprite();
+                else
+                sprite.setTexture(texB2);
+            }
+
+            else if(direction == 0)
+            {
+                sprite.setTexture(texU2);
+            }
+
+            else if(direction == 1)
+            {
+                sprite.setTexture(texR2);
+            }
+
+            else if(direction == 2)
+            {
+                sprite.setTexture(texD2);
+            }
+
+            else
+            {
+                sprite.setTexture(texL2);
+            }
+        }
+
+    }
+
+     bool isEaten()
+    {
+        if(shared->mode[3] != 2)
+            return false;
+
+        if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
+        {
+            ghostEatenSound.play();
+            shared->mode[3] = 3;
+            return true;
+        }
+
+        return false;
     }
 };

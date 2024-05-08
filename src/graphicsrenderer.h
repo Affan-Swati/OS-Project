@@ -32,22 +32,38 @@ class GraphicsRenderer
 
         void drawFood(RenderWindow &window , Sprite &sprite)
         {   
-            CircleShape food;
-            food.setRadius(3);
-            food.setFillColor(Color::Yellow);
-            
-
+            RectangleShape food;
+            food.setSize(Vector2f(4,4));
+            food.setFillColor(Color(255,229,180,255));
+        
             for (int i = 0; i < shared->ROWS; i++) 
             {
                 for (int j = 0; j < shared->COLS; j++) 
                 {
                     if (shared->gameBoard[i][j] == 3) 
                     {
-                        food.setPosition(j * CELLSIZE_X + 10, i * CELLSIZE_Y + 10);
+                        food.setPosition(j * CELLSIZE_X + 12, i * CELLSIZE_Y + 12);
                         //sprite.setPosition((j * CELLSIZE_X) + 3, (i * CELLSIZE_Y) + 5);
                         window.draw(food);
                     }
                 }
+            }
+
+
+            CircleShape circle;
+            circle.setRadius(10);
+            circle.setFillColor(Color(255,229,180,255));
+
+            int xOffset = 5;
+            int yOffset = 0;
+
+            for(int i = 0 ; i < shared->frightenPallets.size(); i++)
+            {
+                if(shared->frightenPallets[i].first == -1)
+                    continue;
+
+                circle.setPosition(shared->frightenPallets[i].second * CELLSIZE_X + xOffset , shared->frightenPallets[i].first * CELLSIZE_Y + 4);
+                window.draw(circle);
             }
         }
 
@@ -69,14 +85,37 @@ class GraphicsRenderer
             RectangleShape cell(Vector2f(CELLSIZE_X,CELLSIZE_Y));
             cell.setOutlineColor(Color(0,0,0,255));
             cell.setOutlineThickness(-1.0f); // Negative thickness for outline
+            cell.setFillColor(Color(0,0,255,100));
+
+            int opacity = 210;
+            bool dec = true;
+
             for (int i = 0; i < shared->ROWS; ++i) 
-            {
+            {   
+                if(dec)
+                {
+                    if(opacity <= 50)
+                        dec = false;
+                    else
+                        opacity -= 10;
+                }
+
+                else
+                {
+                    if(opacity >= 200)
+                        dec = true;
+                    else
+                        opacity += 10;
+
+                }
+                cell.setFillColor(Color(0,0,255,opacity));
+
                 for (int j = 0; j < shared->COLS; ++j) 
                 {
                     if (shared->gameBoard[i][j] == 1) 
                     {
                         cell.setPosition(j * CELLSIZE_X, i * CELLSIZE_Y);
-                        cell.setFillColor(Color::Red); // Change color as needed
+                         // Change color as needed
                         window.draw(cell);
                     }
                 }
@@ -85,6 +124,7 @@ class GraphicsRenderer
 
         void drawGhost(RenderWindow &window , Sprite& sprite , int x , int y)
         {
+            //int currentX = 
             sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
             window.draw(sprite);            
         }

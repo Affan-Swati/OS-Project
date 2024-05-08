@@ -35,8 +35,10 @@ class GameEngine
     Sprite food , logo;
     Texture tex , tex_logo;
 
-    Music siren , eat1,eat2;
+    Music siren , eat1,eat2  , eatPower , frightenSound;
+    Clock frightenClock;
    
+    bool frightenStart , frightenEnd;
     GameEngine(void *&arg)
     {
         shared = (SharedVariables*)arg;
@@ -62,9 +64,14 @@ class GameEngine
         siren.openFromFile("../resources/sounds/siren.wav");
         eat2.openFromFile("../resources/sounds/eat.wav");
         eat1.openFromFile("../resources/sounds/PelletEat2.wav");
+        frightenSound.openFromFile("../resources/sounds/blue.wav");
+        //frightenSound.setVolume(3);
 
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
+
+        frightenStart = false;
+        frightenEnd = false;
 
     }
     
@@ -82,8 +89,8 @@ class GameEngine
         text.setFillColor(Color::Yellow);
 
         text2.setFont(font);
-        text2.setPosition(Vector2f(260,430));
-        text2.setString("Adil Nadeem ;D");
+        text2.setPosition(Vector2f(240,430));
+        text2.setString("");
         text2.setScale(0.8,0.8);
         text2.setOutlineColor(Color::Yellow);
         text2.setOutlineThickness(3.0f);
@@ -125,8 +132,13 @@ class GameEngine
                 clk.restart();
             }
 
+            blinky->isEaten();
+            pinky->isEaten();
+            inky->isEaten();
+            clyde->isEaten();
+
             text.setString("SCORE: " + to_string(pacman->score));
-            //graphicsRenderer->drawMaze(window);
+            graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window,food);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
@@ -243,6 +255,76 @@ class GameEngine
             shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
             shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
 
+            if(originalY == 5)
+            {
+                if(originalX == shared->frightenPallets[1].second)
+                {
+                    shared->frightenPallets[1].first = -1;
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+
+                else if(originalX == shared->frightenPallets[0].second)
+                {
+                    shared->frightenPallets[0].first = -1;
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+            }
+
+            else if(originalY == 34)
+            {
+                if(originalX== shared->frightenPallets[2].second)
+                {
+                    shared->frightenPallets[2].first = -1;
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+
+                else if(originalX == shared->frightenPallets[3].second)
+                {
+                    shared->frightenPallets[3].first = -1;
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+            }
+
+            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 10 && !frightenEnd)
+            {
+                frightenEnd = true;
+                frightenStart = false;
+            }
+
+            if(frightenEnd)
+            {
+                frightenEnd = false;
+                setAllMode(0);
+                siren.play();
+                siren.setLoop(true);
+                frightenSound.stop();
+            }
+
+
             pacman->sprite.setPosition(pacman->position);
             shared->pacPos = pacman->position;
         }
@@ -255,6 +337,9 @@ class GameEngine
         {
             for (int j = 0; j < shared->COLS; j+=2) 
             {
+                 if((i == 4 || i == 5 || i == 6) && (j == 2 || j == 42 ))
+                        continue;
+
                 if (shared->gameBoard[i][j] == 0) 
                 {
                     shared->gameBoard[i][j] = 3; // 3 for food
@@ -262,6 +347,10 @@ class GameEngine
             }
         }
 
+        shared->frightenPallets.push_back(make_pair(5,2));
+        shared->frightenPallets.push_back(make_pair(5,42));
+        shared->frightenPallets.push_back(make_pair(34,42));
+        shared->frightenPallets.push_back(make_pair(34,2));
     }
 
     // Function to check collision at a given position
@@ -289,5 +378,43 @@ class GameEngine
         return true;
     }
 
+    void setAllMode(int mode)
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] != 3)
+            shared->mode[i] = mode;
+        }
+    }
+
+    bool isAllMode(int mode)
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] != mode)
+                return false;
+        }
+
+        return true;
+    }
+
+    bool isAnyMode(int mode)
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] == mode)
+                return true;
+        }
+
+        return false;
+    }
+
+    void resetGhostClocks()
+    {
+        blinky->blink.restart();
+        pinky->blink.restart();
+        inky->blink.restart();
+        clyde->blink.restart();
+    }
 };
 #endif

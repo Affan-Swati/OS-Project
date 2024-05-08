@@ -1,5 +1,7 @@
 #include "ghostcontroller.h"
 
+using namespace std;
+
 class BlinkyController : public GhostController
 {
     public:
@@ -19,6 +21,43 @@ class BlinkyController : public GhostController
         {
             return make_pair(19,22); // house exit
         }
+
+        if(shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 22)
+        {
+            inHouse = true;
+            shared->mode[0] = 0;
+        }
+
+         if(shared->mode[0] == 3 )
+        {
+            return make_pair(22,22);
+        }
+    
+        if(shared->mode[0] == 2) // frighten mode set
+        {
+            int random = rand() % 4;
+
+            if(random == 0)
+            {
+                return make_pair(shared->blinkyPos.first.x,shared->blinkyPos.first.y - 1);
+            }
+
+            else if(random == 1)
+            {
+                return make_pair(shared->blinkyPos.first.x + 1,shared->blinkyPos.first.y );
+            }
+
+            else if(random == 2)
+            {
+                return make_pair(shared->blinkyPos.first.x,shared->blinkyPos.first.y + 1);
+            }
+
+            else 
+            {
+                return make_pair(shared->blinkyPos.first.x - 1,shared->blinkyPos.first.y);
+            }
+        }
+
         return make_pair(pacmanX ,pacmanY ); // 56 , -1 for scatter phase
     }
 
@@ -28,7 +67,7 @@ class BlinkyController : public GhostController
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->blinkyPos);
+        vector<pair<int,int>> moves = findMoves(shared->blinkyPos,shared->mode[0]);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 

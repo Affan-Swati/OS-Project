@@ -68,10 +68,25 @@ void * Blinky_thread_function(void * arg)
 {
     GhostController *blinkyController = new BlinkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
-    
+    float delay = 0.1;
     while(!shared->gameOver)
     {
-       if(ghostSync1.getElapsedTime().asSeconds() > 0.1)
+       if(shared->mode[0] == 2)
+       {
+            delay = 0.2;
+       }
+
+       else if(shared->mode[0] == 3)
+       {
+            delay = 0.05;
+       }
+       else
+       {
+            delay = 0.1;
+       }
+
+
+       if(ghostSync1.getElapsedTime().asSeconds() > delay)
        {
             if(!blinkyController->inHouse || (blinkyController->key && blinkyController->permit))
             {
@@ -105,10 +120,26 @@ void * Pinky_thread_function(void * arg)
 {
     GhostController *pinkyController = new PinkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
-    
+    float delay = 0.1;
+
     while(!shared->gameOver)
     {
-       if(ghostSync2.getElapsedTime().asSeconds() > 0.1)
+       if(shared->mode[1] == 2)
+       {
+            delay = 0.2;
+       }
+
+       else if(shared->mode[1] == 3)
+       {
+            delay = 0.05;
+       }
+       else
+       {
+            delay = 0.1;
+       }
+
+
+       if(ghostSync2.getElapsedTime().asSeconds() > delay)
        {
             if(!pinkyController->inHouse || (pinkyController->key && pinkyController->permit))
             {
@@ -143,9 +174,26 @@ void * Inky_thread_function(void * arg)
     GhostController *inkyController = new InkyController(arg);
     SharedVariables *shared = (SharedVariables *)arg;
     
+    float delay = 0.1;
     while(!shared->gameOver)
     {
-       if(ghostSync3.getElapsedTime().asSeconds() > 0.1)
+       if(shared->mode[2] == 2)
+       {
+            delay = 0.2;
+       }
+
+       else if(shared->mode[2] == 3)
+       {
+            delay = 0.05;
+       }
+
+       else 
+       {
+            delay = 0.1;
+       }
+
+
+       if(ghostSync3.getElapsedTime().asSeconds() > delay)
        {
             if(!inkyController->inHouse || (inkyController->key && inkyController->permit))
             {
@@ -181,9 +229,24 @@ void * Clyde_thread_function(void * arg)
 
     SharedVariables *shared = (SharedVariables *)arg;
     
+    float delay = 0.1;
     while(!shared->gameOver)
     {
-       if(ghostSync4.getElapsedTime().asSeconds() > 0.1)
+       if(shared->mode[3] == 2)
+       {
+            delay = 0.2;
+       }
+       else if(shared->mode[3] == 3)
+       {
+            delay = 0.05;
+       }
+       else
+       {
+            delay = 0.1;
+       }
+
+
+       if(ghostSync4.getElapsedTime().asSeconds() > delay)
        {
             if(!clydeController->inHouse || (clydeController->key && clydeController->permit))
             {
@@ -241,10 +304,10 @@ void * GhostController_thread_function(void *arg)
         }
 
     }
-    while(t4_active);
-    while(t5_active);
-    while(t6_active);
-    while(t7_active);
+    while(t4_active) sleep(2);
+    while(t5_active)sleep(2);
+    while(t6_active)sleep(2);
+    while(t7_active)sleep(2);
 
     t3_active = false;
     pthread_exit(NULL);
@@ -254,7 +317,7 @@ int main()
 {
 
     XInitThreads();
-
+    srand(time(0));
     SharedVariables *shared = new SharedVariables;
 
 
@@ -271,6 +334,11 @@ int main()
     while(t1_active);
     while(t2_active);
     while(t3_active);
+
+    pthread_mutex_destroy(&mut);
+    pthread_mutex_destroy(&mut2);
+    pthread_mutex_destroy(&mut3);
+
 
 }
 
