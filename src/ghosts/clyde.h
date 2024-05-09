@@ -165,7 +165,7 @@ class Clyde : public Ghost
             return false;
         }
 
-        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
+        if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
         {
             return true;
         }

@@ -22,13 +22,14 @@ class PinkyController : public GhostController
 
         if(shared->mode[1] == 1) // in scatter mode
         {
-            return make_pair(46,-2);
+            return make_pair(45,0);
         }
 
         if(shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 22)
         {
             inHouse = true;
-            shared->mode[1] = 0;
+            shared->mode[1] = shared->oldMode[1];
+
         }
 
         if(shared->mode[1] == 3)

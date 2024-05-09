@@ -165,7 +165,7 @@ class Inky : public Ghost
             return false;
         }
 
-        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
+        if(shared->inkyPos.first.x == shared->pacPos.x && shared->inkyPos.second.y == shared->pacPos.y)
         {
             return true;
         }

@@ -188,7 +188,7 @@ class Pinky : public Ghost
             return false;
         }
 
-        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
+        if(shared->pinkyPos.first.x == shared->pacPos.x && shared->pinkyPos.second.y == shared->pacPos.y)
         {
             return true;
         }

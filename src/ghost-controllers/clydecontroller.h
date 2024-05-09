@@ -22,13 +22,14 @@ class ClydeController : public GhostController
 
         if(shared->mode[0] == 1) // in scatter mode
         {
-            return make_pair(0,52);
+            return make_pair(0,49);
         }
 
         if(shared->clydePos.first.x == 22 && shared->clydePos.first.y == 22)
         {
             inHouse = true;
-            shared->mode[3] = 0;
+            shared->mode[3] = shared->oldMode[3];
+
         }
 
         if(shared->mode[3] == 3)

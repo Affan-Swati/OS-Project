@@ -11,11 +11,12 @@ using namespace sf;
 
 class GhostController
 {
-    public:
+    protected:
     virtual pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction) = 0;
-    virtual void update() = 0;
 
     public:
+    virtual void update() = 0;
+    
     SharedVariables* shared;
     bool inHouse;
     bool key;

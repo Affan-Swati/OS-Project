@@ -22,13 +22,14 @@ class InkyController : public GhostController
 
         if(shared->mode[2] == 1) // in scatter mode
         {
-            return make_pair(46,52);
+            return make_pair(45,49);
         }
 
         if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
         {
             inHouse = true;
-            shared->mode[2] = 0;
+            shared->mode[2] = shared->oldMode[2];
+
         }
 
         if(shared->mode[2] == 3)

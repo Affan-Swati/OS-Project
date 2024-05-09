@@ -139,6 +139,7 @@ class GameEngine
             graphicsRenderer->drawLives(window,pacman->lives);
             window.display();  
         }
+        scatterClock.restart();
         animationMusic.stop();
     }
 
@@ -156,8 +157,8 @@ class GameEngine
         text.setFillColor(Color::Yellow);
 
         text2.setFont(font);
-        text2.setPosition(Vector2f(240,430));
-        text2.setString("WHAT THE SIGMA");
+        text2.setPosition(Vector2f(520,750));
+        text2.setString("MODE: SCATTER");
         text2.setScale(0.8,0.8);
         text2.setOutlineColor(Color::Yellow);
         text2.setOutlineThickness(3.0f);
@@ -212,12 +213,14 @@ class GameEngine
             // check switch between scatter and chase modes
             if(scatterClock.getElapsedTime().asSeconds() > 10 && isAllMode(1))
             {
+                text2.setString("MODE: CHASE");
                 chaseClock.restart();
                 setAllMode(0);
             }
 
             if(chaseClock.getElapsedTime().asSeconds() > 20 && isAllMode(0))
             {
+                text2.setString("MODE: SCATTER");
                 scatterClock.restart();
                 setAllMode(1);
             }
@@ -259,7 +262,7 @@ class GameEngine
             graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
             graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y);
             window.draw(text);
-            //window.draw(text2);
+            window.draw(text2);
             window.draw(logo);
             graphicsRenderer->drawLives(window,pacman->lives);
             window.display();
@@ -339,6 +342,14 @@ class GameEngine
             return 0;
     }
 
+    void setOldState()
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] == 0 || shared->mode[i] == 1)
+                shared->oldMode[i] = shared->mode[i];
+        }
+    }
     void checkRespawnPallets()
     {
         if(frightenPallets[0].second == -1 && frightenPalletsClocks[0].getElapsedTime().asSeconds() > 20)
@@ -374,6 +385,8 @@ class GameEngine
                 {
                     frightenPallets[1].second = -1;
                     frightenPalletsClocks[1].restart();
+                    shared->oldMode[0] = shared->mode[0];
+                    setOldState();
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -387,6 +400,7 @@ class GameEngine
                 {
                     frightenPallets[0].second = -1;
                     frightenPalletsClocks[0].restart();
+                    setOldState();
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -403,6 +417,7 @@ class GameEngine
                 {
                     frightenPallets[2].second = -1;
                     frightenPalletsClocks[2].restart();
+                    setOldState();
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();
@@ -416,6 +431,7 @@ class GameEngine
                 {
                     frightenPallets[3].second = -1;
                     frightenPalletsClocks[3].restart();
+                    setOldState();
                     setAllMode(2);
                     frightenStart = true;
                     siren.stop();

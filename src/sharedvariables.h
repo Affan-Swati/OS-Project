@@ -30,6 +30,7 @@ struct SharedVariables
     pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(26,22)};
     int ghostState = 0; // 0 or 1
     int mode[4] = {1,1,1,1}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
+    int oldMode[4]; // 0 chase , 1 scatter
    
     static const int ROWS = 50;
     static const int COLS = 46; 

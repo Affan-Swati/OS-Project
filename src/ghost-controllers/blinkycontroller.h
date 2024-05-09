@@ -24,13 +24,13 @@ class BlinkyController : public GhostController
 
         if(shared->mode[0] == 1) // in scatter mode
         {
-            return make_pair(0,-2);
+            return make_pair(0,0);
         }
 
         if(shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 22)
         {
             inHouse = true;
-            shared->mode[0] = 0;
+            shared->mode[0] = shared->oldMode[0];
         }
 
         if(shared->mode[0] == 3)
