@@ -22,6 +22,11 @@ class BlinkyController : public GhostController
             return make_pair(22,19); // house exit
         }
 
+        if(shared->mode[0] == 1) // in scatter mode
+        {
+            return make_pair(0,-2);
+        }
+
         if(shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 22)
         {
             inHouse = true;

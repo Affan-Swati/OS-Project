@@ -20,6 +20,11 @@ class InkyController : public GhostController
             return make_pair(22,19); // house exit
         }
 
+        if(shared->mode[2] == 1) // in scatter mode
+        {
+            return make_pair(46,52);
+        }
+
         if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
         {
             inHouse = true;

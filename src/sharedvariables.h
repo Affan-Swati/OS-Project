@@ -14,6 +14,7 @@ struct SharedVariables
     sem_t gameStarted;
     sem_t gameReset2;
     sem_t key_perm_semaphores[4];
+    pthread_mutex_t key_perm_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
     char userInput  = 'a';
@@ -28,7 +29,7 @@ struct SharedVariables
     pair<Vector2f,Vector2f> inkyPos   = {Vector2f(24,22) ,Vector2f(24,22)};
     pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(26,22)};
     int ghostState = 0; // 0 or 1
-    int mode[4] = {0,0,0,0}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
+    int mode[4] = {1,1,1,1}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
    
     static const int ROWS = 50;
     static const int COLS = 46; 

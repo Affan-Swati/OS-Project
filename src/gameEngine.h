@@ -36,6 +36,8 @@ class GameEngine
 
     Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound;
     Clock frightenClock;
+    Clock scatterClock;
+    Clock chaseClock;
    
     bool frightenStart , frightenEnd;
     vector<pair<int,int>> frightenPallets;
@@ -53,30 +55,27 @@ class GameEngine
         inky = new Inky(arg);
         clyde = new Clyde(arg);
 
-        speed = 1;
-        this->initializeFood();
         tex.loadFromFile("../resources/img/other/dot.png");
         tex_logo.loadFromFile("../resources/img/other/logo.png");
-        food.setTexture(tex);
-        food.setScale(1.5,1.5);
-        logo.setTexture(tex_logo);
-        logo.setPosition(208,750);
-        logo.setScale(0.1,0.1);
-
-
-        shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
         siren.openFromFile("../resources/sounds/siren.wav");
         eat2.openFromFile("../resources/sounds/eat.wav");
         eat1.openFromFile("../resources/sounds/PelletEat2.wav");
         frightenSound.openFromFile("../resources/sounds/blue.wav");
         homeRunningSound.openFromFile("../resources/sounds/homerunning.wav");
-        //frightenSound.setVolume(3);
 
+        food.setTexture(tex);
+        food.setScale(1.5,1.5);
+        logo.setTexture(tex_logo);
+        logo.setPosition(208,750);
+        logo.setScale(0.1,0.1);
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
 
-        frightenStart = false;
-        frightenEnd = false;
+        this->speed = 1;
+        this->initializeFood();
+        shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
+        this->frightenStart = false;
+        this->frightenEnd = false;
 
     }
     
@@ -90,6 +89,10 @@ class GameEngine
         animationMusic.setVolume(100);
         animationMusic.play();
         animationClock.restart();
+
+        for(int i = 0 ; i < 4 ; i++)
+            shared->key_perm[i].restart();
+
         while(animationClock.getElapsedTime().asSeconds() < 4)
         {
             window.clear();
@@ -173,7 +176,8 @@ class GameEngine
         float time = 0;        
         siren.play();
         siren.setLoop(true);
-        
+        scatterClock.restart();
+
         while (window.isOpen())
         {
             window.clear();
@@ -205,12 +209,25 @@ class GameEngine
                 }
             }
 
+            // check switch between scatter and chase modes
+            if(scatterClock.getElapsedTime().asSeconds() > 10 && isAllMode(1))
+            {
+                chaseClock.restart();
+                setAllMode(0);
+            }
+
+            if(chaseClock.getElapsedTime().asSeconds() > 20 && isAllMode(0))
+            {
+                scatterClock.restart();
+                setAllMode(1);
+            }
+
             int input = pacman->getInput(shared->userInput);
 
             if (clk.getElapsedTime().asSeconds() > 0.08) // delay for player movement
             {
-                if(!validate_move(input))
-                    validate_move(pacman->direction);
+                if(!validateAndMove(input))
+                    validateAndMove(pacman->direction);
                                  
                 clk.restart();
             }
@@ -426,7 +443,7 @@ class GameEngine
 
     }
 
-    bool validate_move(int input)
+    bool validateAndMove(int input)
     {
         int originalX = pacman->position.x;
         int originalY = pacman->position.y;

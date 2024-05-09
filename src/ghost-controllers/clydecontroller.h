@@ -20,6 +20,11 @@ class ClydeController : public GhostController
             return make_pair(22,19); // house exit
         }
 
+        if(shared->mode[0] == 1) // in scatter mode
+        {
+            return make_pair(0,52);
+        }
+
         if(shared->clydePos.first.x == 22 && shared->clydePos.first.y == 22)
         {
             inHouse = true;

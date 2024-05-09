@@ -67,21 +67,25 @@ class GhostController
             sem_wait(&shared->key_perm_semaphores[i]);
             key = true;
             sem_wait(&shared->key_perm_semaphores[(i + 1) % 4]);
-            
+
+            pthread_mutex_lock(&shared->key_perm_mutex);
             shared->key_perm[i].restart();
             shared->key_perm[(i + 1) % 4].restart();
-
             permit = true;
+            pthread_mutex_unlock(&shared->key_perm_mutex);
+
        }
     }
 
 
     void releaseKeyPermit(int i)
     {
+        pthread_mutex_lock(&shared->key_perm_mutex);
         permit = false;
         key = false;        
         sem_post(&shared->key_perm_semaphores[i]);
-        sem_post(&shared->key_perm_semaphores[(i + 1) % 4]);          
+        sem_post(&shared->key_perm_semaphores[(i + 1) % 4]);  
+        pthread_mutex_unlock(&shared->key_perm_mutex);        
     }
     
     private:
