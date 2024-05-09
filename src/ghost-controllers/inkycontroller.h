@@ -128,7 +128,7 @@ class InkyController : public GhostController
         if(inHouse && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
         {
             inHouse = false;
-            releaseKeyPermit();
+            releaseKeyPermit(2);
         }
 
     }

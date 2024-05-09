@@ -12,8 +12,8 @@ class Ghost
 {   
    public:
    virtual void updateTexture(int direction) = 0;
-   virtual bool isEaten() = 0;
-   virtual bool eatsPac() = 0;
+   virtual bool isEaten(Sprite &pacman) = 0;
+   virtual bool eatsPac(Sprite &pacman) = 0;
 
    public:
     Sprite sprite;

@@ -32,7 +32,7 @@ class GraphicsRenderer
             time.restart();
         }
 
-        void drawFood(RenderWindow &window)
+        void drawFood(RenderWindow &window , vector<pair<int,int>> &frightenPallets)
         {   
             RectangleShape food;
             food.setSize(Vector2f(4,4));
@@ -59,14 +59,14 @@ class GraphicsRenderer
             int xOffset = 5;
             int yOffset = 0;
 
-            for(int i = 0 ; i < shared->frightenPallets.size(); i++)
+            for(int i = 0 ; i < frightenPallets.size(); i++)
             {
-                if(shared->frightenPallets[i].second == -1 || (time.getElapsedTime().asSeconds() < 0.5))
+                if(frightenPallets[i].second == -1 || (time.getElapsedTime().asSeconds() < 0.5))
                 {
                     continue;
                 }
 
-                circle.setPosition(shared->frightenPallets[i].second * CELLSIZE_X + xOffset , shared->frightenPallets[i].first * CELLSIZE_Y + 4);
+                circle.setPosition(frightenPallets[i].second * CELLSIZE_X + xOffset , frightenPallets[i].first * CELLSIZE_Y + 4);
                 window.draw(circle);
             }
 
@@ -171,7 +171,7 @@ class GraphicsRenderer
             window.draw(sprite);            
         }
 
-        void pacDeathAnimation(int x , int y , RenderWindow &window ,Sprite &logo , int lives)
+        void pacDeathAnimation(int x , int y , RenderWindow &window ,Sprite &logo , int lives , vector<pair<int,int>> &frightenPallets)
         {
             Texture tex , death_sheet;
             Sprite sprite;
@@ -193,7 +193,7 @@ class GraphicsRenderer
 
                 window.clear();
                 drawMap(window);
-                drawFood(window);
+                drawFood(window,frightenPallets);
                 drawMaze(window);
 
                 int off = i;

@@ -142,12 +142,12 @@ class Blinky : public Ghost
 
     }
 
-    bool isEaten()
+    bool isEaten(Sprite &pacman)
     {
         if(shared->mode[0] != 2)
             return false;
 
-        if(shared->blinkyPos.first.x == shared->pacPos.x && shared->blinkyPos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             ghostEatenSound.stop();
             ghostEatenSound.play();
@@ -157,14 +157,14 @@ class Blinky : public Ghost
 
         return false;
     }
-    bool eatsPac()
+    bool eatsPac(Sprite &pacman)
     {
         if(shared->mode[0] != 1 && shared->mode[0] != 0)
         {
             return false;
         }
 
-        if(shared->blinkyPos.first.x == shared->pacPos.x && shared->blinkyPos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             return true;
         }

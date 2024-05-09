@@ -115,7 +115,7 @@ class ClydeController : public GhostController
         if(inHouse && shared->clydePos.first.x == 22 && shared->clydePos.first.y == 19)
         {
             inHouse = false;
-            releaseKeyPermit();
+            releaseKeyPermit(3);
         }
 
     }

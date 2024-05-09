@@ -16,20 +16,19 @@
 #include <pthread.h>
 
 
-pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 
 using namespace std;
 using namespace sf;
 
 class GameEngine
 {
-    public:
+    private:
     
     SharedVariables *shared;
     GraphicsRenderer *graphicsRenderer;
     Pacman *pacman;
     Ghost *blinky , *pinky ,*inky ,*clyde; // polymorphism 
-    // create 4 ghosts here
     float speed;
 
     Sprite food , logo;
@@ -39,6 +38,11 @@ class GameEngine
     Clock frightenClock;
    
     bool frightenStart , frightenEnd;
+    vector<pair<int,int>> frightenPallets;
+    Clock frightenPalletsClocks[4];
+
+    public:
+
     GameEngine(void *&arg)
     {
         shared = (SharedVariables*)arg;
@@ -91,7 +95,7 @@ class GameEngine
             window.clear();
             graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
-            graphicsRenderer->drawFood(window);
+            graphicsRenderer->drawFood(window,frightenPallets);
             pacman->getInput('s');
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
 
@@ -133,7 +137,6 @@ class GameEngine
             window.display();  
         }
         animationMusic.stop();
-        shared->gameStarted = true;
     }
 
     void start_game()
@@ -159,6 +162,13 @@ class GameEngine
         
         startAnimation(window);
 
+        // 4 for ghosts , 1 for UI thread
+        sem_post(&shared->gameStarted);
+        sem_post(&shared->gameStarted);
+        sem_post(&shared->gameStarted); 
+        sem_post(&shared->gameStarted); 
+        sem_post(&shared->gameStarted); 
+
         Clock clk;
         float time = 0;        
         siren.play();
@@ -176,6 +186,7 @@ class GameEngine
                 eat2.stop();
                 frightenSound.stop();
                 homeRunningSound.stop();
+                eatPower.stop();
                 shared->gameOver = true;
                 window.close();
             }
@@ -190,13 +201,11 @@ class GameEngine
                     homeRunningSound.stop();
                     shared->gameOver = true;
                     window.close();
+                    return;
                 }
             }
 
-            pthread_mutex_lock(&mut);
             int input = pacman->getInput(shared->userInput);
-            pthread_mutex_unlock(&mut);
-
 
             if (clk.getElapsedTime().asSeconds() > 0.08) // delay for player movement
             {
@@ -206,10 +215,10 @@ class GameEngine
                 clk.restart();
             }
 
-            blinky->isEaten();
-            pinky->isEaten();
-            inky->isEaten();
-            clyde->isEaten();
+            blinky->isEaten(pacman->sprite);
+            pinky->isEaten(pacman->sprite);
+            inky->isEaten(pacman->sprite);
+            clyde->isEaten(pacman->sprite);
 
             if(isAnyMode(3) && homeRunningSound.getStatus() != SoundSource::Playing)
             {
@@ -225,7 +234,7 @@ class GameEngine
             text.setString("SCORE: " + to_string(pacman->score));
             graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
-            graphicsRenderer->drawFood(window);
+            graphicsRenderer->drawFood(window , frightenPallets);
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
             animateGhosts();
             graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
@@ -252,9 +261,9 @@ class GameEngine
 
     void pacCollisionWithGhost(RenderWindow &window)
     {
-        if(blinky->eatsPac() || pinky->eatsPac() || inky->eatsPac() || clyde->eatsPac())
+        if(blinky->eatsPac(pacman->sprite) || pinky->eatsPac(pacman->sprite) || inky->eatsPac(pacman->sprite) || clyde->eatsPac(pacman->sprite))
         {
-            pthread_mutex_lock(&mut);
+            pthread_mutex_lock(&shared->mutex);
             shared->gameReset = true;
             pacman->lives -= 1;
             int x = shared->pacPos.x;
@@ -263,14 +272,12 @@ class GameEngine
             if(homeRunningSound.getStatus() == SoundStream :: Playing)
                 homeRunningSound.stop();
 
-            graphicsRenderer->pacDeathAnimation(x,y,window,logo,pacman->lives);
+            graphicsRenderer->pacDeathAnimation(x,y,window,logo,pacman->lives,frightenPallets);
             shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
             shared->pacDirection  = 3;
             pacman->setDirection(3);
             shared->pacPos = Vector2f(17,36);
             pacman->position = Vector2f(17,36);
-            shared->key[0] = true ; shared->key[1] = true; // keys and permitss to exit ghost house 
-            shared->permit[0] = true ; shared->permit[1] = true; 
             shared->gameReset = true;
             // first is currentPos , second is previousPos
             shared->blinkyPos.first = Vector2f(18,22); shared->blinkyPos.second = Vector2f(18,22); 
@@ -279,7 +286,7 @@ class GameEngine
             shared->clydePos.first = Vector2f(26,22); shared->clydePos.second = Vector2f(26,22);
             shared->ghostState = 0; // 0 or 1
             shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
-            pthread_mutex_unlock(&mut);
+            pthread_mutex_unlock(&shared->mutex);
 
             if(pacman->lives == 0)
 
@@ -291,9 +298,15 @@ class GameEngine
                 siren.play();
                 siren.setLoop(true);
             }
-        
+
             shared->gameReset = false;
 
+            // 4 for ghosts , 1 for UI thread
+            sem_post(&shared->gameReset2);
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
         }
     }
 
@@ -308,7 +321,111 @@ class GameEngine
         else 
             return 0;
     }
-    
+
+    void checkRespawnPallets()
+    {
+        if(frightenPallets[0].second == -1 && frightenPalletsClocks[0].getElapsedTime().asSeconds() > 20)
+        {
+            frightenPallets[0].second = 2;
+        }
+
+        if(frightenPallets[1].second == -1 && frightenPalletsClocks[1].getElapsedTime().asSeconds() > 20)
+        {
+            frightenPallets[1].second = 42;
+        }
+
+        if(frightenPallets[2].second == -1 && frightenPalletsClocks[2].getElapsedTime().asSeconds() > 20)
+        {
+            frightenPallets[2].second = 42;
+        }
+
+        if(frightenPallets[3].second == -1 && frightenPalletsClocks[3].getElapsedTime().asSeconds() > 20)
+        {
+            frightenPallets[3].second = 2;
+        }
+    }
+
+    void checkFrightenPallets()
+    {
+        checkRespawnPallets();
+        int originalY = shared->pacPos.y;
+        int originalX = shared->pacPos.x;
+
+        if(originalY == 5)
+            {
+                if(originalX == frightenPallets[1].second)
+                {
+                    frightenPallets[1].second = -1;
+                    frightenPalletsClocks[1].restart();
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+
+                else if(originalX == frightenPallets[0].second)
+                {
+                    frightenPallets[0].second = -1;
+                    frightenPalletsClocks[0].restart();
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+            }
+
+            else if(originalY == 34)
+            {
+                if(originalX== frightenPallets[2].second)
+                {
+                    frightenPallets[2].second = -1;
+                    frightenPalletsClocks[2].restart();
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+
+                else if(originalX == frightenPallets[3].second)
+                {
+                    frightenPallets[3].second = -1;
+                    frightenPalletsClocks[3].restart();
+                    setAllMode(2);
+                    frightenStart = true;
+                    siren.stop();
+                    resetGhostClocks();
+                    frightenSound.setLoop(true);
+                    frightenSound.play();
+                    frightenClock.restart();
+                }
+            }
+
+            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 && !frightenEnd)
+            {
+                frightenEnd = true;
+                frightenStart = false;
+            }
+
+            if(frightenEnd)
+            {
+                frightenEnd = false;
+                setAllMode(0);
+                siren.play();
+                siren.setLoop(true);
+                frightenSound.stop();
+            }
+
+    }
+
     bool validate_move(int input)
     {
         int originalX = pacman->position.x;
@@ -370,6 +487,7 @@ class GameEngine
 
         if (canMove) 
         {
+            pthread_mutex_lock(&shared->mutex);
             pacman->setDirection(input);
             shared->pacDirection = input;
             pacman->position.x = nextX;
@@ -386,78 +504,11 @@ class GameEngine
             shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
             shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
 
-            if(originalY == 5)
-            {
-                if(originalX == shared->frightenPallets[1].second)
-                {
-                    shared->frightenPallets[1].second = -1;
-                    setAllMode(2);
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
-
-                else if(originalX == shared->frightenPallets[0].second)
-                {
-                    shared->frightenPallets[0].second = -1;
-                    setAllMode(2);
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
-            }
-
-            else if(originalY == 34)
-            {
-                if(originalX== shared->frightenPallets[2].second)
-                {
-                    shared->frightenPallets[2].second = -1;
-                    setAllMode(2);
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
-
-                else if(originalX == shared->frightenPallets[3].second)
-                {
-                    shared->frightenPallets[3].second = -1;
-                    setAllMode(2);
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
-            }
-
-            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 && !frightenEnd)
-            {
-                frightenEnd = true;
-                frightenStart = false;
-            }
-
-            if(frightenEnd)
-            {
-                frightenEnd = false;
-                setAllMode(0);
-                siren.play();
-                siren.setLoop(true);
-                frightenSound.stop();
-            }
-
+            checkFrightenPallets();
 
             pacman->sprite.setPosition(pacman->position);
             shared->pacPos = pacman->position;
+            pthread_mutex_unlock(&shared->mutex);
         }
         return canMove;
     }
@@ -478,31 +529,19 @@ class GameEngine
             }
         }
 
-        shared->frightenPallets.push_back(make_pair(5,2));
-        shared->frightenPallets.push_back(make_pair(5,42));
-        shared->frightenPallets.push_back(make_pair(34,42));
-        shared->frightenPallets.push_back(make_pair(34,2));
+        //233 total food
+        frightenPallets.push_back(make_pair(5,2));
+        frightenPallets.push_back(make_pair(5,42));
+        frightenPallets.push_back(make_pair(34,42));
+        frightenPallets.push_back(make_pair(34,2));
     }
 
-    // Function to check collision at a given position
     bool checkCollision(int x, int y) 
     {
         // Check if the position is within the boundaries of the game board
         if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
         {
             if(shared->gameBoard[y][x] == 0 || shared->gameBoard[y][x] == 3 || shared->gameBoard[y][x] == 2 )
-                return false;
-        }
-        // If the position is outside the game board, consider it a collision
-        return true;
-    }
-
-    bool checkCollisionGhost(int x, int y) 
-    {
-        // Check if the position is within the boundaries of the game board
-        if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
-        {
-            if(shared->gameBoard[y][x] != 1 && shared->gameBoard[y][x] != 2)
                 return false;
         }
         // If the position is outside the game board, consider it a collision

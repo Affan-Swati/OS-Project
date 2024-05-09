@@ -165,12 +165,12 @@ class Pinky : public Ghost
 
     }
 
-     bool isEaten()
+    bool isEaten(Sprite &pacman)
     {
         if(shared->mode[1] != 2)
             return false;
 
-        if(shared->pinkyPos.first.x == shared->pacPos.x && shared->pinkyPos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             ghostEatenSound.stop();
             ghostEatenSound.play();
@@ -181,14 +181,14 @@ class Pinky : public Ghost
         return false;
     }
 
-    bool eatsPac()
+    bool eatsPac(Sprite &pacman)
     {
         if(shared->mode[1] != 1 && shared->mode[1] != 0)
         {
             return false;
         }
 
-        if(shared->pinkyPos.first.x == shared->pacPos.x && shared->pinkyPos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             return true;
         }

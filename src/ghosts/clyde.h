@@ -142,12 +142,12 @@ class Clyde : public Ghost
 
     }
 
-    bool isEaten()
+    bool isEaten(Sprite &pacman)
     {
         if(shared->mode[3] != 2)
             return false;
 
-        if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             ghostEatenSound.stop();
             ghostEatenSound.play();
@@ -158,14 +158,14 @@ class Clyde : public Ghost
         return false;
     }
 
-    bool eatsPac()
+    bool eatsPac(Sprite &pacman)
     {
         if(shared->mode[3] != 1 && shared->mode[3] != 0)
         {
             return false;
         }
 
-        if(shared->clydePos.first.x == shared->pacPos.x && shared->clydePos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
         {
             return true;
         }

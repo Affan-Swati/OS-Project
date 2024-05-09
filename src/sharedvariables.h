@@ -1,19 +1,26 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <semaphore.h>
 using namespace std;
 using namespace sf;
 
 struct SharedVariables
 {
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    bool gameOver;   
+    bool gameReset;
+
+    sem_t gameStarted;
+    sem_t gameReset2;
+    sem_t key_perm_semaphores[4];
+
+
     char userInput  = 'a';
-    bool gameOver   = false;
-    bool gameStarted = false;
     int pacDirection   = 3;
     Vector2f pacPos = Vector2f(17,36);
-    bool key[2] = {true,true}; // keys and permitss to exit ghost house 
-    bool permit[2] = {true,true};
-    bool gameReset = false;
+
+    Clock key_perm[4]; // 0 & 1 for keys , 2 & 3 for permits
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 
@@ -22,8 +29,6 @@ struct SharedVariables
     pair<Vector2f,Vector2f> clydePos  = {Vector2f(26,22) ,Vector2f(26,22)};
     int ghostState = 0; // 0 or 1
     int mode[4] = {0,0,0,0}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
-
-    vector<pair<int,int>> frightenPallets;
    
     static const int ROWS = 50;
     static const int COLS = 46; 

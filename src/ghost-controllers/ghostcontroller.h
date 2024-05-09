@@ -58,54 +58,30 @@ class GhostController
         return moves;
     }
 
-    bool grabKey()
+    void grabKeyPermit(int i)
     {
-        if(shared->key[0])
-        {
-            shared->key[0] = false;
-            this->key = true;
-            key_index = 0;
-            return true;
-        }
+       int delay = 6;
 
-        else if(shared->key[1])
-        {
-            shared->key[1] = false;
-            this->key = true;
-            key_index = 1;
-            return true;
-        }
+       if(shared->key_perm[i].getElapsedTime().asSeconds() > delay && shared->key_perm[(i + 1) % 4].getElapsedTime().asSeconds() > delay)
+       {
+            sem_wait(&shared->key_perm_semaphores[i]);
+            key = true;
+            sem_wait(&shared->key_perm_semaphores[(i + 1) % 4]);
+            
+            shared->key_perm[i].restart();
+            shared->key_perm[(i + 1) % 4].restart();
 
-        else return false;
+            permit = true;
+       }
     }
 
-    bool grabPermit()
-    {
-        if(shared->permit[0])
-        {
-            shared->permit[0] = false;
-            this->permit = true;
-            permit_index = 0;
-            return true;
-        }
 
-        else if(shared->permit[1])
-        {
-            shared->permit[1] = false;
-            this->permit = true;
-            permit_index = 1;
-            return true;
-        }
-
-        else return false;
-    }
-
-    void releaseKeyPermit()
+    void releaseKeyPermit(int i)
     {
         permit = false;
-        key = false;
-        shared->key[key_index] = true;
-        shared->permit[permit_index] = true;
+        key = false;        
+        sem_post(&shared->key_perm_semaphores[i]);
+        sem_post(&shared->key_perm_semaphores[(i + 1) % 4]);          
     }
     
     private:

@@ -112,7 +112,7 @@ class PinkyController : public GhostController
         if(inHouse && shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 19)
         {
             inHouse = false;
-            releaseKeyPermit();
+            releaseKeyPermit(1);
         }
 
     }

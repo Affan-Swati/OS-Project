@@ -7,9 +7,6 @@
 using namespace std;
 using namespace sf;
 
-pthread_mutex_t mut2 = PTHREAD_MUTEX_INITIALIZER;
-
-
 class UI
 {
     public:
@@ -22,10 +19,13 @@ class UI
 
     void getInput()
     {
+       sem_wait(&shared->gameStarted);
        while(!shared->gameOver)
        {
-            if(!shared->gameStarted || shared->gameReset)
-            continue;
+            if(shared->gameReset)
+            {
+                sem_wait(&shared->gameReset2);
+            }
         
             char input = '*';  // * means user pressed soemthing other than w a s d
             bool w,a,s,d;
@@ -54,9 +54,7 @@ class UI
             {
                 input = 'a';
             }
-            pthread_mutex_lock(&mut2);
             shared->userInput =  input;  
-            pthread_mutex_unlock(&mut2);
        } 
     }
 

@@ -107,7 +107,7 @@ class BlinkyController : public GhostController
         if(inHouse && shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 19)
         {
             inHouse = false;
-            releaseKeyPermit();
+            releaseKeyPermit(0);
         }
 
     }
