@@ -39,7 +39,7 @@ class GameEngine
     Sprite scoreSprite[4];
     Texture scoreTex[4]; // 200 ,400 , 800 , 1600
 
-    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound ;
+    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound , menuMusic;
     Clock frightenClock;
     Clock scatterClock;
     Clock chaseClock;
@@ -76,6 +76,7 @@ class GameEngine
         eat1.openFromFile("../resources/sounds/PelletEat2.wav");
         frightenSound.openFromFile("../resources/sounds/blue.wav");
         homeRunningSound.openFromFile("../resources/sounds/homerunning.wav");
+        menuMusic.openFromFile("../resources/sounds/menu.wav");
 
         food.setTexture(tex);
         food.setScale(1.5,1.5);
@@ -84,6 +85,8 @@ class GameEngine
         logo.setScale(0.1,0.1);
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
+        menuMusic.setLoop(true);
+        menuMusic.setVolume(70);
         text.setString("Score:0");
 
         for(int i = 0 ; i < 4 ; i++)
@@ -255,14 +258,15 @@ class GameEngine
         overlay.setFillColor(Color(0, 0, 0, 170)); // Set the overlay color with alpha (transparency)
         window.setMouseCursorVisible(false);
 
-        while (menu_option == 0) 
+        while (menu_option != 1 && menu_option != 4) 
         {
             Event event;
             while (window.pollEvent(event)) 
             {
-                if (event.type == sf::Event::Closed) 
+                if (event.type == Event::Closed) 
                 {
                     window.close();
+                    return 4;
                 }
 
                 eventRet = menu.handleEvent(event);
@@ -341,7 +345,7 @@ class GameEngine
 
             window.display();  
 
-            if(menu_option != 0)
+            if(menu_option == 1 || menu_option == 4)
             {
                 return menu_option;
             }
@@ -480,15 +484,15 @@ class GameEngine
         text.setOutlineColor(Color::White);
         text.setScale(0.7,0.7);
         text2.setFont(font);
-        text2.setPosition(Vector2f(280,850));
+        text2.setPosition(Vector2f(285,850));
         text2.setString("");
-        text2.setScale(1,1);
-        text2.setOutlineColor(Color::Yellow);
-        text2.setOutlineThickness(1.0f);
-        text2.setFillColor(Color::Red);
+        text2.setScale(0.8,0.8);
+        text2.setFillColor(Color::Blue);
         
+        menuMusic.play();
         if(displayMenu(window) == 4)
         {   
+            menuMusic.stop();
             window.close();
             return;
         }
@@ -496,6 +500,7 @@ class GameEngine
         window.setMouseCursorVisible(true);
         getNameInput(window);
         text2.setString(name);
+        menuMusic.stop();
 
         startAnimation(window);
         scatterClock.restart();
@@ -722,22 +727,22 @@ class GameEngine
 
     void checkRespawnPallets()
     {
-        if(frightenPallets[0].second == -1 && frightenPalletsClocks[0].getElapsedTime().asSeconds() > 20)
+        if(frightenPallets[0].second == -1 && frightenPalletsClocks[0].getElapsedTime().asSeconds() > 25)
         {
             frightenPallets[0].second = 2;
         }
 
-        if(frightenPallets[1].second == -1 && frightenPalletsClocks[1].getElapsedTime().asSeconds() > 20)
+        if(frightenPallets[1].second == -1 && frightenPalletsClocks[1].getElapsedTime().asSeconds() > 25)
         {
             frightenPallets[1].second = 42;
         }
 
-        if(frightenPallets[2].second == -1 && frightenPalletsClocks[2].getElapsedTime().asSeconds() > 20)
+        if(frightenPallets[2].second == -1 && frightenPalletsClocks[2].getElapsedTime().asSeconds() > 25)
         {
             frightenPallets[2].second = 42;
         }
 
-        if(frightenPallets[3].second == -1 && frightenPalletsClocks[3].getElapsedTime().asSeconds() > 20)
+        if(frightenPallets[3].second == -1 && frightenPalletsClocks[3].getElapsedTime().asSeconds() > 25)
         {
             frightenPallets[3].second = 2;
         }
