@@ -13,6 +13,13 @@ class GhostController
 {
     protected:
     virtual pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction) = 0;
+    void checkReset()
+    {
+        if(shared->gameReset)
+        {
+            inHouse = true;
+        }
+    }
 
     public:
     virtual void update() = 0;
@@ -77,8 +84,7 @@ class GhostController
 
        }
     }
-
-
+   
     void releaseKeyPermit(int i)
     {
         pthread_mutex_lock(&shared->key_perm_mutex);
@@ -110,15 +116,6 @@ class GhostController
     {
         //return false;
         return (x == prevPosition.x && y == prevPosition.y );
-    }
-
-    protected:
-    void checkReset()
-    {
-        if(shared->gameReset)
-        {
-            inHouse = true;
-        }
     }
 
 };

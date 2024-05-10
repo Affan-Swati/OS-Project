@@ -10,9 +10,11 @@ struct SharedVariables
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     bool gameOver;   
     bool gameReset;
+    bool animation;
 
     sem_t gameStarted;
     sem_t gameReset2;
+    sem_t animation2;
     sem_t key_perm_semaphores[4];
     pthread_mutex_t key_perm_mutex = PTHREAD_MUTEX_INITIALIZER;
 

@@ -157,6 +157,7 @@ class Blinky : public Ghost
 
         return false;
     }
+    
     bool eatsPac(Sprite &pacman)
     {
         if(shared->mode[0] != 1 && shared->mode[0] != 0)

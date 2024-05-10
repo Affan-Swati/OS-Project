@@ -75,7 +75,7 @@ class GraphicsRenderer
 
         }
 
-         void drawPacMan(RenderWindow &window , Sprite& sprite , int x , int y , int direction)
+        void drawPacMan(RenderWindow &window , Sprite& sprite , int x , int y , int direction)
          {
             int offset_X = 0 , offset_Y = 0;
              if(direction == 0 || direction == 2)

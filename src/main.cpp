@@ -71,6 +71,11 @@ void * Blinky_thread_function(void * arg)
             sem_wait(&shared->gameReset2);
         }
 
+        if(shared->animation)
+        {
+            sem_wait(&shared->animation2);
+        }
+
         if(shared->mode[0] == 2)
         {
             delay = 0.2;
@@ -123,6 +128,12 @@ void * Pinky_thread_function(void * arg)
             sem_wait(&shared->gameReset2);
         }
 
+        if(shared->animation)
+        {
+            sem_wait(&shared->animation2);
+        }
+
+
        if(shared->mode[1] == 2)
        {
             delay = 0.2;
@@ -172,6 +183,12 @@ void * Inky_thread_function(void * arg)
         {
             sem_wait(&shared->gameReset2);
         }
+
+        if(shared->animation)
+        {
+            sem_wait(&shared->animation2);
+        }
+
 
        if(shared->mode[2] == 2)
        {
@@ -224,6 +241,12 @@ void * Clyde_thread_function(void * arg)
         {
             sem_wait(&shared->gameReset2);
         }
+
+        if(shared->animation)
+        {
+            sem_wait(&shared->animation2);
+        }
+
 
        if(shared->mode[3] == 2)
        {
@@ -306,6 +329,7 @@ void initialize_semaphores(SharedVariables *&shared)
 
     sem_init(&shared->gameReset2 ,0 ,0);
     sem_init(&shared->gameStarted ,0 ,0);
+    sem_init(&shared->animation2,0,0);
 }
 
 int main()
@@ -327,6 +351,8 @@ int main()
     sem_wait(&thread_active[1]);
     sem_wait(&thread_active[2]);
     pthread_mutex_destroy(&shared->mutex);
+    pthread_mutex_destroy(&shared->key_perm_mutex);
+
 
 
 }

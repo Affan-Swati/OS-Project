@@ -32,9 +32,12 @@ class GameEngine
     float speed;
 
     Sprite food , logo;
-    Texture tex , tex_logo;
+    Texture tex , tex_logo , ghostSheet;
 
-    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound;
+    Sprite scoreSprite[4];
+    Texture scoreTex[4]; // 200 ,400 , 800 , 1600
+
+    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound ;
     Clock frightenClock;
     Clock scatterClock;
     Clock chaseClock;
@@ -42,6 +45,8 @@ class GameEngine
     bool frightenStart , frightenEnd;
     vector<pair<int,int>> frightenPallets;
     Clock frightenPalletsClocks[4];
+    int ghostEaten; // tracks ghost eaten during frighten state
+    int foodEaten;
 
     public:
 
@@ -57,6 +62,11 @@ class GameEngine
 
         tex.loadFromFile("../resources/img/other/dot.png");
         tex_logo.loadFromFile("../resources/img/other/logo.png");
+        ghostSheet.loadFromFile(".././resources/img/ghosts/ghost_sheet.png");
+        scoreTex[0].loadFromImage(ghostSheet.copyToImage(), (IntRect)FloatRect(0 * 15.83  , 4 * 15 + 3,    15.83 , 15));
+        scoreTex[1].loadFromImage(ghostSheet.copyToImage(), (IntRect)FloatRect(1 * 15.83 + 1 , 4 * 15 + 3, 17 , 15));
+        scoreTex[2].loadFromImage(ghostSheet.copyToImage(), (IntRect)FloatRect(2 * 15.83 + 1 , 4 * 15 + 3, 17 , 15));
+        scoreTex[3].loadFromImage(ghostSheet.copyToImage(), (IntRect)FloatRect(3 * 15.83 + 1 , 4 * 15 + 3, 18 , 15));
         siren.openFromFile("../resources/sounds/siren.wav");
         eat2.openFromFile("../resources/sounds/eat.wav");
         eat1.openFromFile("../resources/sounds/PelletEat2.wav");
@@ -70,22 +80,105 @@ class GameEngine
         logo.setScale(0.1,0.1);
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
+        scoreSprite[0].setTexture(scoreTex[0]);
+        scoreSprite[1].setTexture(scoreTex[1]);
+        scoreSprite[2].setTexture(scoreTex[2]);
+        scoreSprite[3].setTexture(scoreTex[3]);
+        scoreSprite[0].setScale(2,2);
+        scoreSprite[1].setScale(2,2);
+        scoreSprite[2].setScale(2,2);
+        scoreSprite[3].setScale(2,2);
+        
 
         this->speed = 1;
         this->initializeFood();
         shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
         this->frightenStart = false;
         this->frightenEnd = false;
+        this->foodEaten = 0;
+        this->ghostEaten = 0;
 
     }
     
+
+    void ghostEatenAnimation(RenderWindow &window , int ghost)
+    {
+        Clock animationClock;
+        animationClock.restart();
+
+        shared->animation = true;
+        pthread_mutex_lock(&shared->mutex);
+        while(animationClock.getElapsedTime().asSeconds() < 1)
+        {
+            window.clear();
+            graphicsRenderer->drawMaze(window);
+            graphicsRenderer->drawMap(window);
+            graphicsRenderer->drawFood(window,frightenPallets);
+            
+           
+            if(ghost != 0)
+            {
+                graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
+            }
+
+            else
+            {
+                graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
+            }
+
+            if(ghost != 1)
+            {
+                graphicsRenderer->drawGhost(window, pinky->sprite,shared->pinkyPos.first.x ,shared->pinkyPos.first.y);
+            }
+
+            else
+            {
+                graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->pinkyPos.first.x ,shared->pinkyPos.first.y);
+            }
+
+            if(ghost != 2)
+            {
+                graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x ,shared->inkyPos.first.y);
+            }
+
+            else
+            {
+                graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->inkyPos.first.x ,shared->inkyPos.first.y);
+            }
+
+            if(ghost != 3)
+            {
+                graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x ,shared->clydePos.first.y);
+            }
+
+            else
+            {
+                graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->clydePos.first.x ,shared->clydePos.first.y);
+            }
+            
+            window.draw(logo);
+            graphicsRenderer->drawLives(window,pacman->lives);
+            window.display();  
+        }
+
+        shared->animation = false;
+        pthread_mutex_unlock(&shared->mutex);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+    }
+
     void startAnimation(RenderWindow &window)
     {
         Clock animationClock;
         Music animationMusic;
         animationMusic.openFromFile("../resources/sounds/intro.wav");
-        animationClock.restart();
 
+        siren.stop();
+        frightenSound.stop();
+        homeRunningSound.stop();
         animationMusic.setVolume(100);
         animationMusic.play();
         animationClock.restart();
@@ -139,7 +232,6 @@ class GameEngine
             graphicsRenderer->drawLives(window,pacman->lives);
             window.display();  
         }
-        scatterClock.restart();
         animationMusic.stop();
     }
 
@@ -165,6 +257,7 @@ class GameEngine
         text2.setFillColor(Color::Blue);
         
         startAnimation(window);
+        scatterClock.restart();
 
         // 4 for ghosts , 1 for UI thread
         sem_post(&shared->gameStarted);
@@ -235,10 +328,33 @@ class GameEngine
                 clk.restart();
             }
 
-            blinky->isEaten(pacman->sprite);
-            pinky->isEaten(pacman->sprite);
-            inky->isEaten(pacman->sprite);
-            clyde->isEaten(pacman->sprite);
+            if(blinky->isEaten(pacman->sprite))
+            {
+                ghostEaten++;
+                ghostEatenAnimation(window,0);
+                pacman->score = pacman->score + (pow(2,ghostEaten) * 100);
+            }
+
+            if(pinky->isEaten(pacman->sprite))
+            {
+                ghostEaten++;
+                ghostEatenAnimation(window,1);
+                pacman->score = pacman->score + (pow(2,ghostEaten) * 100);
+            }
+
+            if(inky->isEaten(pacman->sprite))
+            {
+                ghostEaten++;
+                ghostEatenAnimation(window,2);
+                pacman->score = pacman->score + (pow(2,ghostEaten) * 100);
+            }
+
+            if(clyde->isEaten(pacman->sprite))
+            {
+                ghostEaten++;
+                ghostEatenAnimation(window,3);
+                pacman->score = pacman->score + (pow(2,ghostEaten) * 100);
+            }
 
             if(isAnyMode(3) && homeRunningSound.getStatus() != SoundSource::Playing)
             {
@@ -341,15 +457,7 @@ class GameEngine
         else 
             return 0;
     }
-
-    void setOldState()
-    {
-        for(int i = 0 ; i < 4 ; i++)
-        {
-            if(shared->mode[i] == 0 || shared->mode[i] == 1)
-                shared->oldMode[i] = shared->mode[i];
-        }
-    }
+   
     void checkRespawnPallets()
     {
         if(frightenPallets[0].second == -1 && frightenPalletsClocks[0].getElapsedTime().asSeconds() > 20)
@@ -385,9 +493,9 @@ class GameEngine
                 {
                     frightenPallets[1].second = -1;
                     frightenPalletsClocks[1].restart();
-                    shared->oldMode[0] = shared->mode[0];
                     setOldState();
                     setAllMode(2);
+                    pacman->score = pacman->score + 50;
                     frightenStart = true;
                     siren.stop();
                     resetGhostClocks();
@@ -402,6 +510,7 @@ class GameEngine
                     frightenPalletsClocks[0].restart();
                     setOldState();
                     setAllMode(2);
+                    pacman->score = pacman->score + 50;
                     frightenStart = true;
                     siren.stop();
                     resetGhostClocks();
@@ -419,6 +528,7 @@ class GameEngine
                     frightenPalletsClocks[2].restart();
                     setOldState();
                     setAllMode(2);
+                    pacman->score = pacman->score + 50;
                     frightenStart = true;
                     siren.stop();
                     resetGhostClocks();
@@ -433,6 +543,7 @@ class GameEngine
                     frightenPalletsClocks[3].restart();
                     setOldState();
                     setAllMode(2);
+                    pacman->score = pacman->score + 50;
                     frightenStart = true;
                     siren.stop();
                     resetGhostClocks();
@@ -442,7 +553,7 @@ class GameEngine
                 }
             }
 
-            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 && !frightenEnd)
+            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 + ghostEaten && !frightenEnd)
             {
                 frightenEnd = true;
                 frightenStart = false;
@@ -451,7 +562,10 @@ class GameEngine
             if(frightenEnd)
             {
                 frightenEnd = false;
+
+                //setToOldMode();
                 setAllMode(0);
+                ghostEaten = 0;
                 siren.play();
                 siren.setLoop(true);
                 frightenSound.stop();
@@ -532,7 +646,8 @@ class GameEngine
                 eat2.stop();
                 eat1.play();
                 eat2.play();
-                pacman->score = pacman->score + 1;
+                pacman->score = pacman->score + 10;
+                foodEaten = foodEaten + 1;
             }
             shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
             shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
@@ -610,6 +725,24 @@ class GameEngine
         }
 
         return false;
+    }
+
+    void setOldState()
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] == 0 || shared->mode[i] == 1)
+                shared->oldMode[i] = shared->mode[i];
+        }
+    }
+
+    void setToOldMode()
+    {
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] == 0 || shared->mode[i] == 1)
+                shared->mode[i] = shared->oldMode[i];
+        }
     }
 
     void resetGhostClocks()

@@ -26,6 +26,12 @@ class UI
             {
                 sem_wait(&shared->gameReset2);
             }
+
+            if(shared->animation)
+            {
+                sem_wait(&shared->animation2);
+            }
+
         
             char input = '*';  // * means user pressed soemthing other than w a s d
             bool w,a,s,d;
