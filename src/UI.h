@@ -64,5 +64,31 @@ class UI
        } 
     }
 
+    void drawLives( RenderWindow &window, int lives)
+        {
+            Texture tex , sprite_sheet;
+            Sprite  live;
+
+            sprite_sheet.loadFromFile("../resources/img/other/Pacman.png");
+            
+            float height = 13.8;
+            float width = 15.91;
+            tex.loadFromImage(sprite_sheet.copyToImage(), (IntRect)FloatRect(1 * width , 1 * height ,width , height + 2));
+            live.setTexture(tex);
+            live.setPosition(0,750);
+            live.setScale(2,2);
+            float offset = 10;
+            for(int i = 0 ; i < lives ; i++)
+            {   
+                live.setPosition(offset,760);
+                window.draw(live);
+                offset += 28;
+            }
+
+
+
+        }
+
+
 
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <SFML/Graphics.hpp>
 #include <vector>
 #include <semaphore.h>
 using namespace std;
@@ -22,6 +23,8 @@ struct SharedVariables
     char userInput  = 'a';
     int pacDirection   = 3;
     Vector2f pacPos = Vector2f(17,36);
+    int lives;
+    int score;
 
     Clock key_perm[4]; // 0 & 1 for keys , 2 & 3 for permits
 
@@ -33,7 +36,7 @@ struct SharedVariables
     int ghostState = 0; // 0 or 1
     int mode[4] = {1,1,1,1}; // 0 chase , 1 scatter , 2 frighten , 3 eaten
     int oldMode[4]; // 0 chase , 1 scatter
-   
+
     static const int ROWS = 50;
     static const int COLS = 46; 
     int gameBoard[ROWS][COLS] // 0 EMPTY SPACE , 1 WALLS , 2 PACMAN , 3 FOOD PELLETS , 4 BARRIER FOR PLAYER AND NOT FOR GHOST

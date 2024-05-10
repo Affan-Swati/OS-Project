@@ -171,7 +171,7 @@ class GraphicsRenderer
             window.draw(sprite);            
         }
 
-        void pacDeathAnimation(int x , int y , RenderWindow &window ,Sprite &logo , int lives , vector<pair<int,int>> &frightenPallets)
+        void pacDeathAnimation(int x , int y , RenderWindow &window ,int lives , vector<pair<int,int>> &frightenPallets)
         {
             Texture tex , death_sheet;
             Sprite sprite;
@@ -211,7 +211,6 @@ class GraphicsRenderer
                 sprite.setTexture(tex);
                 sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
                 window.draw(sprite);
-                window.draw(logo);
                 this->drawLives(window,lives);
                 window.display();
             }
@@ -238,7 +237,7 @@ class GraphicsRenderer
             float offset = 10;
             for(int i = 0 ; i < lives ; i++)
             {   
-                live.setPosition(offset,750);
+                live.setPosition(offset,760);
                 window.draw(live);
                 offset += 28;
             }

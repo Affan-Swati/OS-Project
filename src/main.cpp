@@ -338,7 +338,6 @@ int main()
     XInitThreads();
     srand(time(0));
     SharedVariables *shared = new SharedVariables;
-
     initialize_semaphores(shared);
 
     pthread_create(&tid[0],NULL,gameEngine_thread_function,(void*)shared);   
