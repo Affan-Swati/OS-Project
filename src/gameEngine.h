@@ -11,6 +11,7 @@
 #include "ghosts/pinky.h"
 #include "ghosts/inky.h"
 #include "ghosts/clyde.h"
+#include "fruit.h"
 #include "sharedvariables.h"
 #include "menu.h"
 #include <unistd.h>
@@ -30,6 +31,7 @@ class GameEngine
     GraphicsRenderer *graphicsRenderer;
     Pacman *pacman;
     Ghost *blinky , *pinky ,*inky ,*clyde; // polymorphism 
+    Fruit *cherry;
     float speed;
 
     Text text , text2;
@@ -64,6 +66,7 @@ class GameEngine
         pinky = new Pinky(arg);
         inky = new Inky(arg);
         clyde = new Clyde(arg);
+        cherry = new Fruit(arg,0,22,26); // 0 means cherry , 1 means strawberry , 2 means mango , 3 means apple
 
         tex.loadFromFile("../resources/img/other/dot.png");
         tex_logo.loadFromFile("../resources/img/other/logo.png");
@@ -162,7 +165,9 @@ class GameEngine
             {
                 graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->clydePos.first.x ,shared->clydePos.first.y);
             }
-            
+
+            if(cherry->isActive)
+                window.draw(cherry->sprite);           
             graphicsRenderer->drawLives(window,pacman->lives);
             window.draw(text);
             window.display();  
@@ -236,6 +241,8 @@ class GameEngine
             graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
             graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y); 
             graphicsRenderer->drawLives(window,pacman->lives);
+            if(cherry->isActive)
+                window.draw(cherry->sprite);
             window.draw(text);
             window.draw(text2);
             window.display();  
@@ -584,12 +591,19 @@ class GameEngine
             graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window , frightenPallets);
+            if(cherry->isActive)
+                window.draw(cherry->sprite);
+
             graphicsRenderer->drawPacMan(window,pacman->sprite,pacman->position.x , pacman->position.y,pacman->direction);
             animateGhosts();
             graphicsRenderer->drawGhost(window, blinky->sprite,shared->blinkyPos.first.x ,shared->blinkyPos.first.y);
             graphicsRenderer->drawGhost(window, pinky->sprite,shared->pinkyPos.first.x , shared->pinkyPos.first.y);
             graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
             graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y);
+            
+            if(cherry->checkCollision())
+                pacman->score = pacman->score + 100;
+
             window.draw(text);
             window.draw(text2);
             //window.draw(logo);
@@ -664,8 +678,9 @@ class GameEngine
     {
         if(blinky->eatsPac(pacman->sprite) || pinky->eatsPac(pacman->sprite) || inky->eatsPac(pacman->sprite) || clyde->eatsPac(pacman->sprite))
         {
-            pthread_mutex_lock(&shared->mutex);
             shared->gameReset = true;
+            shared->stateReset = true;
+            pthread_mutex_lock(&shared->mutex);
             pacman->lives -= 1;
             int x = shared->pacPos.x;
             int y = shared->pacPos.y;
@@ -700,14 +715,24 @@ class GameEngine
                 siren.play();
                 siren.setLoop(true);
             }
-            // 4 for ghosts , 1 for UI thread
+
             shared->gameReset = false;
-            
+            // 4 for ghosts , 1 for UI thread
             sem_post(&shared->gameReset2);
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
+           
+           // wait until all ghosts reset their states to inHouse
+            sem_wait(&shared->statesReseted);
+            sem_wait(&shared->statesReseted);
+            sem_wait(&shared->statesReseted);
+            sem_wait(&shared->statesReseted);
+
+            shared->stateReset = false;
+
+             
         }
     }
 
@@ -787,7 +812,6 @@ class GameEngine
                 {
                     frightenPallets[1].second = -1;
                     frightenPalletsClocks[1].restart();
-                    setOldState();
                     setAllMode(2);
                     ghostEaten = 0;
                     pacman->score = pacman->score + 50;
@@ -803,7 +827,6 @@ class GameEngine
                 {
                     frightenPallets[0].second = -1;
                     frightenPalletsClocks[0].restart();
-                    setOldState();
                     setAllMode(2);
                     ghostEaten = 0;
                     pacman->score = pacman->score + 50;
@@ -822,7 +845,6 @@ class GameEngine
                 {
                     frightenPallets[2].second = -1;
                     frightenPalletsClocks[2].restart();
-                    setOldState();
                     setAllMode(2);
                     ghostEaten = 0;
                     pacman->score = pacman->score + 50;
@@ -838,7 +860,6 @@ class GameEngine
                 {
                     frightenPallets[3].second = -1;
                     frightenPalletsClocks[3].restart();
-                    setOldState();
                     setAllMode(2);
                     ghostEaten = 0;
                     pacman->score = pacman->score + 50;

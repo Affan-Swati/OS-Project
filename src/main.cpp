@@ -351,6 +351,8 @@ void initialize_semaphores(SharedVariables *&shared)
     sem_init(&shared->gamePaused2 ,0 ,0);
     sem_init(&shared->gameStarted ,0 ,0);
     sem_init(&shared->animation2,0,0);
+    sem_init(&shared->statesReseted ,0 ,0);
+
 }
 
 int main()

@@ -11,6 +11,7 @@ struct SharedVariables
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     bool gameOver;   
     bool gameReset;
+    bool stateReset;
     bool gamePaused;
     bool animation;
 
@@ -19,6 +20,7 @@ struct SharedVariables
     sem_t gamePaused2;
     sem_t animation2;
     sem_t key_perm_semaphores[4];
+    sem_t statesReseted;
     pthread_mutex_t key_perm_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 

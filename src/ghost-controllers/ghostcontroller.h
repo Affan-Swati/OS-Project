@@ -15,8 +15,9 @@ class GhostController
     virtual pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction) = 0;
     void checkReset()
     {
-        if(shared->gameReset)
+        if(shared->stateReset && !inHouse)
         {
+            sem_post(&shared->statesReseted);
             inHouse = true;
         }
     }
@@ -42,22 +43,22 @@ class GhostController
 
         vector<pair<int,int>> moves;
 
-        if(!checkCollisionGhost(nextX + 1, nextY) && !reverse(nextX + 1 , nextY,ghostPosition.second))
+        if(!checkCollisionGhost(nextX + 1, nextY ,mode) && !reverse(nextX + 1 , nextY,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX + 1 , nextY));
         }
 
-        if(!checkCollisionGhost(nextX - 1, nextY) && !reverse(nextX - 1 , nextY,ghostPosition.second))
+        if(!checkCollisionGhost(nextX - 1, nextY , mode) && !reverse(nextX - 1 , nextY,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX - 1 , nextY));
         }
 
-        if(!checkCollisionGhost(nextX, nextY + 1) && !reverse(nextX , nextY + 1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX, nextY + 1 , mode) && !reverse(nextX , nextY + 1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY + 1));
         }
 
-        if(!checkCollisionGhost(nextX , nextY - 1) && !reverse(nextX , nextY -1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX , nextY - 1 , mode) && !reverse(nextX , nextY -1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY - 1));
         }
@@ -96,8 +97,10 @@ class GhostController
     }
     
     private:
-    bool checkCollisionGhost(int x, int y) 
+    bool checkCollisionGhost(int x, int y , int mode) 
     {
+        if(!inHouse && mode != 3 && shared->gameBoard[y][x] == 4)
+            return true;
         // Check if the position is within the boundaries of the game board
         if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
         {
