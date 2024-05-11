@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <time.h>
 #include <cstring>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include "sharedvariables.h"
@@ -79,31 +80,12 @@ class GraphicsRenderer
          {
             int offset_X = 0 , offset_Y = 0;
              if(direction == 0 || direction == 2)
-                offset_X = 5;
+                offset_X = 3; 
              else
-                offset_Y = 3;
+                offset_Y = 2;
 
             sprite.setPosition(x * CELLSIZE_X + offset_X, y * CELLSIZE_Y + offset_Y);
             window.draw(sprite);
-
-            // float change = 1;
-            // if(sprite.getPosition().x < x * CELLSIZE_X)
-            //     sprite.setPosition(x * CELLSIZE_X + offset_X + change, y * CELLSIZE_Y + offset_Y);
-
-            
-            // else if(sprite.getPosition().x > x * CELLSIZE_X)
-            //      sprite.setPosition(x * CELLSIZE_X + offset_X - change, y * CELLSIZE_Y + offset_Y);
-            
-            // else if(sprite.getPosition().y < y *CELLSIZE_Y)
-            //      sprite.setPosition(x * CELLSIZE_X + offset_X, y * CELLSIZE_Y + offset_Y + change);
-            
-            // else if(sprite.getPosition().y > y * CELLSIZE_Y)
-            //      sprite.setPosition(x * CELLSIZE_X + offset_X , y * CELLSIZE_Y + offset_Y - change);
-            
-            // else
-            // sprite.setPosition(x * CELLSIZE_X + offset_X , y * CELLSIZE_Y + offset_Y);
-
-            // window.draw(sprite); 
         }
 
         void drawMaze(RenderWindow &window) 
@@ -150,22 +132,7 @@ class GraphicsRenderer
         }
 
         void drawGhost(RenderWindow &window , Sprite& sprite , int x , int y)
-        {
-            //int currentX = 
-            // float change = 0;
-            // if(sprite.getPosition().x < x * CELLSIZE_X)
-            //     sprite.setPosition(x * CELLSIZE_X + change, y * CELLSIZE_Y );
-            
-            // else if(sprite.getPosition().x > x * CELLSIZE_X)
-            //     sprite.setPosition(x * CELLSIZE_X - change ,y * CELLSIZE_Y);
-            
-            // else if(sprite.getPosition().y < y *CELLSIZE_Y)
-            //     sprite.setPosition(x * CELLSIZE_X,y * CELLSIZE_Y + change);
-            
-            // else if(sprite.getPosition().y > y * CELLSIZE_Y)
-            //     sprite.setPosition(x * CELLSIZE_X ,y * CELLSIZE_Y - change);
-            
-            // else
+        {     
             sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
 
             window.draw(sprite);            

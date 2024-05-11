@@ -11,10 +11,12 @@ struct SharedVariables
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     bool gameOver;   
     bool gameReset;
+    bool gamePaused;
     bool animation;
 
     sem_t gameStarted;
     sem_t gameReset2;
+    sem_t gamePaused2;
     sem_t animation2;
     sem_t key_perm_semaphores[4];
     pthread_mutex_t key_perm_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -27,6 +29,8 @@ struct SharedVariables
     int score;
 
     Clock key_perm[4]; // 0 & 1 for keys , 2 & 3 for permits
+    Clock gottenOut; // to allow only one ghost at a time to exit house
+    bool allowedToLeave[4] = {false,false,false,false};
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 

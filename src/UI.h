@@ -34,13 +34,17 @@ class UI
 
         
             char input = '*';  // * means user pressed soemthing other than w a s d
-            bool w,a,s,d;
+            bool w,a,s,d,p,back;
 
+            
             w = Keyboard::isKeyPressed(Keyboard::Up);
             a = Keyboard::isKeyPressed(Keyboard::Left);
             s = Keyboard::isKeyPressed(Keyboard::Down);
             d = Keyboard::isKeyPressed(Keyboard::Right);
+            p = Keyboard::isKeyPressed(Keyboard::P);
+            back = Keyboard::isKeyPressed(Keyboard::BackSpace);
 
+               
             if(w)
             {
                 input = 'w';
@@ -60,35 +64,33 @@ class UI
             {
                 input = 'a';
             }
+
+            else if(p)
+            {
+                pthread_mutex_lock(&shared->mutex);
+                if(!shared->gamePaused)
+                {
+                    shared->gamePaused = true;
+                }
+        
+
+                input = 'p';
+                pthread_mutex_unlock(&shared->mutex);
+
+            }
+
+            else if(back)
+            {         
+                shared->gamePaused = false;
+
+                sem_post(&shared->gamePaused2);
+                sem_post(&shared->gamePaused2);
+                sem_post(&shared->gamePaused2);
+                sem_post(&shared->gamePaused2);
+                sem_post(&shared->gamePaused2);
+               
+            }
             shared->userInput =  input;  
        } 
     }
-
-    void drawLives( RenderWindow &window, int lives)
-        {
-            Texture tex , sprite_sheet;
-            Sprite  live;
-
-            sprite_sheet.loadFromFile("../resources/img/other/Pacman.png");
-            
-            float height = 13.8;
-            float width = 15.91;
-            tex.loadFromImage(sprite_sheet.copyToImage(), (IntRect)FloatRect(1 * width , 1 * height ,width , height + 2));
-            live.setTexture(tex);
-            live.setPosition(0,750);
-            live.setScale(2,2);
-            float offset = 10;
-            for(int i = 0 ; i < lives ; i++)
-            {   
-                live.setPosition(offset,760);
-                window.draw(live);
-                offset += 28;
-            }
-
-
-
-        }
-
-
-
 };

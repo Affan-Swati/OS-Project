@@ -33,6 +33,7 @@ class GameEngine
     float speed;
 
     Text text , text2;
+    sf::Font font;
     Sprite food , logo;
     Texture tex , tex_logo , ghostSheet;
 
@@ -114,7 +115,7 @@ class GameEngine
 
         shared->animation = true;
         pthread_mutex_lock(&shared->mutex);
-        while(animationClock.getElapsedTime().asSeconds() < 1)
+        while(animationClock.getElapsedTime().asSeconds() < 0.7)
         {
             window.clear();
             graphicsRenderer->drawMaze(window);
@@ -330,7 +331,7 @@ class GameEngine
 
             dummy = pacman->sprite;
             dummy.setScale(2.2,2.2);
-            dummy.setPosition(335,600);
+            dummy.setPosition(340,600);
             window.draw(dummy);
 
 
@@ -464,7 +465,7 @@ class GameEngine
 
                 dummy = pacman->sprite;
                 dummy.setScale(2.2,2.2);
-                dummy.setPosition(335,600);
+                dummy.setPosition(340,600);
                 window.draw(dummy);
 
  
@@ -477,7 +478,8 @@ class GameEngine
     void start_game()
     {
         RenderWindow window(VideoMode(695,900), "Pacman OS Project");
-        sf::Font font;
+        // window.setVerticalSyncEnabled(true);
+        // window.setFramerateLimit(144);
         font.loadFromFile("../resources/font.ttf");
         text.setFont(font);
         text.setPosition(Vector2f(265,760));
@@ -494,6 +496,12 @@ class GameEngine
         {   
             menuMusic.stop();
             window.close();
+            sem_post(&shared->gameStarted);
+            sem_post(&shared->gameStarted);
+            sem_post(&shared->gameStarted); 
+            sem_post(&shared->gameStarted); 
+            sem_post(&shared->gameStarted); 
+            shared->gameOver = true;
             return;
         }
 
@@ -537,7 +545,7 @@ class GameEngine
                 }
             }
 
-            if(pacman->lives == 0)
+            if(pacman->lives == 0 || foodEaten == 233)
             {
                 siren.stop();
                 eat1.stop();
@@ -548,7 +556,6 @@ class GameEngine
                 shared->gameOver = true;
                 window.close();
             }
-            
 
             alternateGhostModes();
 
@@ -571,7 +578,6 @@ class GameEngine
             else if(!isAnyMode(3) && homeRunningSound.getStatus() == SoundSource::Playing )
                 homeRunningSound.stop();
 
-
             shared->lives = pacman->lives;
             shared->score = pacman->score;
             text.setString("SCORE:" + to_string(pacman->score));
@@ -588,11 +594,33 @@ class GameEngine
             window.draw(text2);
             //window.draw(logo);
             graphicsRenderer->drawLives(window,pacman->lives);
+
+            if(shared->gamePaused)
+            {
+                pauseGame(window);
+            }
+
             window.display();
         }
     }
 
     private:
+   
+   void pauseGame(RenderWindow& window)
+   {
+        Text text3;
+        text3.setFont(font);
+        text3.setString("GAME PAUSED");
+        text3.setFillColor(Color::Red);
+        text3.setPosition(210 , 425);
+        text3.setScale(0.8,0.8);
+
+        window.draw(text3);
+        window.display();
+        
+        sem_wait(&shared->gamePaused2);
+   }
+   
     void animateGhosts()
     {
        blinky->updateTexture(determineDirection(shared->blinkyPos));
@@ -660,10 +688,10 @@ class GameEngine
             shared->clydePos.first = Vector2f(26,22); shared->clydePos.second = Vector2f(26,22);
             shared->ghostState = 0; // 0 or 1
             shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
+            shared->allowedToLeave[0] = false;shared->allowedToLeave[1] = false;shared->allowedToLeave[2] = false;shared->allowedToLeave[3] = false;
             pthread_mutex_unlock(&shared->mutex);
 
             if(pacman->lives == 0)
-
                 shared->gameOver = true;
             
             else
@@ -672,10 +700,9 @@ class GameEngine
                 siren.play();
                 siren.setLoop(true);
             }
-
-            shared->gameReset = false;
-
             // 4 for ghosts , 1 for UI thread
+            shared->gameReset = false;
+            
             sem_post(&shared->gameReset2);
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 

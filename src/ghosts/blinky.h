@@ -9,7 +9,7 @@ class Blinky : public Ghost
         assignRow();
         sprite.setTexture(texR2);
         shared = (SharedVariables *)arg;
-        sprite.setScale(1.75,1.75);
+        sprite.setScale(2,2);
         state = 0;
         ghostEatenSound.openFromFile(".././resources/sounds/monsterEat.wav");
         direction = 0;
@@ -147,7 +147,7 @@ class Blinky : public Ghost
         if(shared->mode[0] != 2)
             return false;
 
-        if(sprite.getGlobalBounds().intersects(pacman.getGlobalBounds()))
+        if(sprite.getGlobalBounds().intersects(FloatRect(shared->pacPos.x * 15,shared->pacPos.y * 15, 16 ,16)))
         {
             ghostEatenSound.stop();
             ghostEatenSound.play();
@@ -165,7 +165,7 @@ class Blinky : public Ghost
             return false;
         }
 
-        if(shared->blinkyPos.first.x == shared->pacPos.x && shared->blinkyPos.second.y == shared->pacPos.y)
+        if(sprite.getGlobalBounds().intersects(FloatRect(shared->pacPos.x * 15,shared->pacPos.y * 15, 16 ,16)))
         {
             return true;
         }
