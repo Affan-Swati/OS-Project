@@ -2,6 +2,7 @@
 #define GAMEENGINE_H
 
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <time.h>
 #include <string>
@@ -165,11 +166,15 @@ class GameEngine
             {
                 graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->clydePos.first.x ,shared->clydePos.first.y);
             }
+
+            graphicsRenderer->drawGhostSpeedBoosts(window);
+
             
             if(cherry->isActive)
                 window.draw(cherry->sprite);           
             graphicsRenderer->drawLives(window,pacman->lives);
             window.draw(text);
+            window.draw(text2);
             window.display();  
         }
 
@@ -241,6 +246,7 @@ class GameEngine
             graphicsRenderer->drawGhost(window, inky->sprite,shared->inkyPos.first.x , shared->inkyPos.first.y);
             graphicsRenderer->drawGhost(window, clyde->sprite,shared->clydePos.first.x , shared->clydePos.first.y); 
             graphicsRenderer->drawLives(window,pacman->lives);
+            graphicsRenderer->drawGhostSpeedBoosts(window);
             if(cherry->isActive)
                 window.draw(cherry->sprite);
             window.draw(text);
@@ -485,7 +491,7 @@ class GameEngine
     void start_game()
     {
         RenderWindow window(VideoMode(695,900), "Pacman OS Project");
-        // window.setVerticalSyncEnabled(true);
+        window.setVerticalSyncEnabled(true);
         // window.setFramerateLimit(144);
         font.loadFromFile("../resources/font.ttf");
         text.setFont(font);
@@ -493,9 +499,7 @@ class GameEngine
         text.setOutlineColor(Color::White);
         text.setScale(0.7,0.7);
         text2.setFont(font);
-        text2.setPosition(Vector2f(285,850));
-        text2.setString("");
-        text2.setScale(0.8,0.8);
+        text2.setScale(0.6,0.6);
         text2.setFillColor(Color::Blue);
         
         menuMusic.play();
@@ -515,6 +519,8 @@ class GameEngine
         window.setMouseCursorVisible(true);
         getNameInput(window);
         text2.setString(name);
+        text2.setOrigin(text2.getGlobalBounds().width / 2 , text2.getGlobalBounds().height / 2);
+        text2.setPosition(Vector2f(330,850));
         menuMusic.stop();
 
         startAnimation(window);
@@ -606,6 +612,7 @@ class GameEngine
             window.draw(text2);
             //window.draw(logo);
             graphicsRenderer->drawLives(window,pacman->lives);
+            graphicsRenderer->drawGhostSpeedBoosts(window);
 
             if(shared->gamePaused)
             {
@@ -702,6 +709,8 @@ class GameEngine
             shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
             shared->allowedToLeave[0] = false;shared->allowedToLeave[1] = false;shared->allowedToLeave[2] = false;shared->allowedToLeave[3] = false;
             shared->inHouse[0] = true;shared->inHouse[1] = true;shared->inHouse[2] = true;shared->inHouse[3] = true;
+            shared->takenSpeedBoosts[0] = false;shared->takenSpeedBoosts[1] = false;shared->takenSpeedBoosts[2] = false;shared->takenSpeedBoosts[3] = false;
+            shared->speedBoosts[0] = true;shared->speedBoosts[1] = true;
             pthread_mutex_unlock(&shared->mutex);
 
             if(pacman->lives == 0)
@@ -761,7 +770,7 @@ class GameEngine
     {
         int input = pacman->getInput(shared->userInput);
 
-            if (clk.getElapsedTime().asSeconds() > 0.08) // delay for player movement
+            if (clk.getElapsedTime().asSeconds() > 0.07) // delay for player movement
             {
                 if(!validateAndMove(input))
                     validateAndMove(pacman->direction);

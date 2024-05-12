@@ -27,6 +27,7 @@ class PinkyController : public GhostController
 
         if(shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 22)
         {
+            relaseSpeedBoost(1);
             shared->inHouse[1] = true;
             shared->mode[1] = shared->oldMode[1];
 
@@ -75,6 +76,9 @@ class PinkyController : public GhostController
 
     void update() 
     {        
+        if(!shared->takenSpeedBoosts[1])
+            checkSpeedBoost();
+
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
@@ -120,6 +124,30 @@ class PinkyController : public GhostController
             releaseKeyPermit(1);
         }
 
+    }
+
+    void checkSpeedBoost()
+    {
+        if(!shared->takenSpeedBoosts[1] && !shared->inHouse[1])
+        {
+            if(!shared->speedBoosts[0] && !shared->speedBoosts[1])
+                return;
+
+            if(shared->speedBoosts[0])
+            {
+                shared->speedBoosts[0] = false;
+                this->speedBoostIndex = 0;
+            }
+
+            else
+            {
+                shared->speedBoosts[1] = false;
+                this->speedBoostIndex = 1;
+            }
+
+            cout << "PINKY TOOK SPEED BOOST" << endl;
+            shared->takenSpeedBoosts[1] = true;
+        }
     }
 
 };

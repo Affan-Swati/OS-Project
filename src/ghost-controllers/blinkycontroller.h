@@ -28,6 +28,7 @@ class BlinkyController : public GhostController
 
         if(shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 22)
         {
+            relaseSpeedBoost(0);
             shared->inHouse[0] = true;
             shared->mode[0] = shared->oldMode[0];
         }
@@ -67,6 +68,8 @@ class BlinkyController : public GhostController
 
     void update() 
     {
+        if(!shared->takenSpeedBoosts[0])
+            checkSpeedBoost();
 
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
@@ -115,5 +118,28 @@ class BlinkyController : public GhostController
 
     }
 
+    void checkSpeedBoost()
+    {
+        if(!shared->takenSpeedBoosts[0] && !shared->inHouse[0])
+        {
+            if(!shared->speedBoosts[0] && !shared->speedBoosts[1])
+                return;
+
+            if(shared->speedBoosts[0])
+            {
+                shared->speedBoosts[0] = false;
+                this->speedBoostIndex = 0;
+            }
+
+            else
+            {
+                shared->speedBoosts[1] = false;
+                this->speedBoostIndex = 1;
+            }
+
+            cout << "BLINKY TOOK SPEED BOOST" << endl;
+            shared->takenSpeedBoosts[0] = true;
+        }
+    }
 
 };

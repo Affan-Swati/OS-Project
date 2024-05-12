@@ -20,13 +20,50 @@ class GraphicsRenderer
     public:
 
         Sprite sprite;
-        Texture tex , dummy_tex;
+        Sprite blinky,pinky,inky,clyde;
+        Texture tex , blinky_tex,pinky_tex,inky_tex,clyde_tex;
+        Texture tex_ , sprite_sheet;
+        Sprite  live;
+        Text text , text2;
+        sf::Font font;
+
         SharedVariables *shared;
         Clock time;
 
         GraphicsRenderer(SharedVariables *shared) 
         {
             tex.loadFromFile("../resources/img/board/map1.png") ;
+            sprite_sheet.loadFromFile("../resources/img/other/Pacman.png");
+            tex_.loadFromImage(sprite_sheet.copyToImage(), (IntRect)FloatRect(1 * 15.91 , 1 * 13.8 ,15.91 , 13.8 + 2));
+            live.setTexture(tex_);
+            live.setScale(2,2);
+
+            blinky_tex.loadFromFile("../resources/img/ghosts/blinky.png");
+            blinky.setTexture(blinky_tex);
+            pinky_tex.loadFromFile("../resources/img/ghosts/pinky.png");
+            pinky.setTexture(pinky_tex);
+            inky_tex.loadFromFile("../resources/img/ghosts/inky.png");
+            inky.setTexture(inky_tex);
+            clyde_tex.loadFromFile("../resources/img/ghosts/clyde.png");
+            clyde.setTexture(clyde_tex);
+
+            font.loadFromFile("../resources/font.ttf");
+            text.setFont(font);
+            text2.setFont(font);
+
+            text.setString("Speed Boost");
+            text.setPosition(520,800);
+            text.setScale(0.5,0.5);
+            text2.setString("Lives");
+            text2.setPosition(30,800);
+            text2.setScale(0.5,0.5);
+
+
+            blinky.setScale(2,2);
+            pinky.setScale(2,2);
+            inky.setScale(2,2);
+            clyde.setScale(2,2);
+
             sprite.setTexture(tex);     
             sprite.setScale(1,1);
             this->shared = shared;
@@ -124,7 +161,27 @@ class GraphicsRenderer
                     if (shared->gameBoard[i][j] == 1) 
                     {
                         cell.setPosition(j * CELLSIZE_X, i * CELLSIZE_Y);
-                         // Change color as needed
+                        window.draw(cell);
+                    }
+                }
+            }
+        }
+
+        void drawMazeWhite(RenderWindow &window) 
+        {
+            // Draw the maze
+            RectangleShape cell(Vector2f(CELLSIZE_X,CELLSIZE_Y));
+            cell.setOutlineColor(Color(0,0,0,255));
+            cell.setOutlineThickness(-1.0f); // Negative thickness for outline
+            cell.setFillColor(Color(255,255,255,150));
+
+            for (int i = 0; i < shared->ROWS; ++i) 
+            {   
+                for (int j = 0; j < shared->COLS; ++j) 
+                {
+                    if (shared->gameBoard[i][j] == 1) 
+                    {
+                        cell.setPosition(j * CELLSIZE_X, i * CELLSIZE_Y);
                         window.draw(cell);
                     }
                 }
@@ -141,33 +198,56 @@ class GraphicsRenderer
         void pacDeathAnimation(int x , int y , RenderWindow &window ,int lives , vector<pair<int,int>> &frightenPallets)
         {
             Texture tex , death_sheet;
-            Sprite sprite;
+            Sprite sprite , dummy;
             Clock clk;
             Music dead;
 
             dead.openFromFile("../resources/sounds/pacmanDeath.wav");
             death_sheet.loadFromFile("../resources/img/other/Pacman.png");
 
+            dummy = this->sprite;
+            dummy.setColor(Color(255,255,255,255));
+
             float height = 13.8;
             float width = 15.91;
             clk.restart();
-            sprite.setScale(2,2);
+            sprite.setScale(2,2.2);
             dead.play();
+
+            int j = 0;
+
             for(int i = 0 ; i < 14 ; i++)
             {   
                 while(clk.getElapsedTime().asSeconds() < 0.1);
                 clk.restart();
 
                 window.clear();
-                drawMap(window);
+
+                if(j < 2)
+                {
+                    drawMap(window);
+                    drawMaze(window);
+
+                }
+
+                else
+                {
+                    window.draw(dummy);
+                    drawMazeWhite(window);
+                }
+
                 drawFood(window,frightenPallets);
-                drawMaze(window);
 
                 int off = i;
                 if(i == 12 || i == 13)
                 {
                     off = 11;
                 }
+
+                if(j == 3)
+                    j = 0;
+                else
+                    j++;
 
                 if(i != 12)
                 tex.loadFromImage(death_sheet.copyToImage(), (IntRect)FloatRect(off * width  , 4 * height ,width , height));
@@ -178,6 +258,7 @@ class GraphicsRenderer
                 sprite.setTexture(tex);
                 sprite.setPosition(x * CELLSIZE_X , y * CELLSIZE_Y);
                 window.draw(sprite);
+                this->drawGhostSpeedBoosts(window);
                 this->drawLives(window,lives);
                 window.display();
             }
@@ -189,18 +270,7 @@ class GraphicsRenderer
         }
 
         void drawLives( RenderWindow &window, int lives)
-        {
-            Texture tex , sprite_sheet;
-            Sprite  live;
-
-            sprite_sheet.loadFromFile("../resources/img/other/Pacman.png");
-            
-            float height = 13.8;
-            float width = 15.91;
-            tex.loadFromImage(sprite_sheet.copyToImage(), (IntRect)FloatRect(1 * width , 1 * height ,width , height + 2));
-            live.setTexture(tex);
-            live.setPosition(0,750);
-            live.setScale(2,2);
+        {       
             float offset = 10;
             for(int i = 0 ; i < lives ; i++)
             {   
@@ -209,7 +279,42 @@ class GraphicsRenderer
                 offset += 28;
             }
 
+            window.draw(text2);
+        }
 
+        void drawGhostSpeedBoosts(RenderWindow &window)
+        {
+            if(!shared->takenSpeedBoosts[0])
+                blinky.setColor(Color(255,255,255,100));
+            else
+                blinky.setColor(Color(255,255,255,255));
+
+            if(!shared->takenSpeedBoosts[1])
+                pinky.setColor(Color(255,255,255,100));
+            else
+                pinky.setColor(Color(255,255,255,255));
+
+            if(!shared->takenSpeedBoosts[2])
+                inky.setColor(Color(255,255,255,100));
+            else
+                inky.setColor(Color(255,255,255,255));
+
+            if(!shared->takenSpeedBoosts[3])
+                clyde.setColor(Color(255,255,255,100));
+            else
+                clyde.setColor(Color(255,255,255,255));
+
+            
+            blinky.setPosition(530,755);
+            pinky.setPosition(570,755);
+            inky.setPosition(610,755);
+            clyde.setPosition(650,755);
+
+            window.draw(text);
+            window.draw(blinky);
+            window.draw(pinky);
+            window.draw(inky);
+            window.draw(clyde);
 
         }
 

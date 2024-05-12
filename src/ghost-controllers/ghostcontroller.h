@@ -13,6 +13,7 @@ class GhostController
 {
     protected:
     virtual pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction) = 0;
+    virtual void checkSpeedBoost() = 0; // blinky and pinky are the faster ghosts
     
     public:
     virtual void update() = 0;
@@ -22,6 +23,7 @@ class GhostController
     bool permit;
     int key_index;
     int permit_index;
+    int speedBoostIndex;
     
     GhostController()
     {
@@ -85,6 +87,12 @@ class GhostController
         sem_post(&shared->key_perm_semaphores[i]);
         sem_post(&shared->key_perm_semaphores[(i + 1) % 4]);  
         pthread_mutex_unlock(&shared->key_perm_mutex);        
+    }
+
+    void relaseSpeedBoost(int ghostNum)
+    {
+        shared->takenSpeedBoosts[ghostNum] = false;
+        shared->speedBoosts[speedBoostIndex] = true;
     }
     
     private:

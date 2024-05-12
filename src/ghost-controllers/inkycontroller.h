@@ -26,6 +26,7 @@ class InkyController : public GhostController
 
         if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
         {
+            relaseSpeedBoost(2);
             shared->inHouse[2] = true;
             shared->mode[2] = shared->oldMode[2];
 
@@ -89,6 +90,9 @@ class InkyController : public GhostController
 
     void update() 
     {
+        if(!shared->takenSpeedBoosts[2])
+            checkSpeedBoost();
+
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
@@ -134,6 +138,30 @@ class InkyController : public GhostController
             releaseKeyPermit(2);
         }
 
+    }
+
+    void checkSpeedBoost()
+    {
+        if(!shared->takenSpeedBoosts[2]  && !shared->inHouse[2] && (shared->inHouse[0] || shared->inHouse[1]))
+        {
+            if(!shared->speedBoosts[0] && !shared->speedBoosts[1])
+                return;
+
+            if(shared->speedBoosts[0])
+            {
+                shared->speedBoosts[0] = false;
+                this->speedBoostIndex = 0;
+            }
+
+            else
+            {
+                shared->speedBoosts[1] = false;
+                this->speedBoostIndex = 1;
+            }
+
+            cout << "INKY TOOK SPEED BOOST" << endl;
+            shared->takenSpeedBoosts[2] = true;
+        }
     }
 
 };

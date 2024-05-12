@@ -26,6 +26,7 @@ class ClydeController : public GhostController
 
         if(shared->clydePos.first.x == 22 && shared->clydePos.first.y == 22)
         {
+            relaseSpeedBoost(3);
             shared->inHouse[3] = true;
             shared->mode[3] = shared->oldMode[3];
 
@@ -73,8 +74,8 @@ class ClydeController : public GhostController
 
     void update() 
     {
-         if(shared->gameReset)
-            return;
+         if(!shared->takenSpeedBoosts[3])
+            checkSpeedBoost();
             
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
@@ -121,5 +122,29 @@ class ClydeController : public GhostController
             releaseKeyPermit(3);
         }
 
+    }
+
+    void checkSpeedBoost()
+    {
+        if(!shared->takenSpeedBoosts[3]  && !shared->inHouse[3] && (shared->inHouse[0] || shared->inHouse[1]))
+        {
+            if(!shared->speedBoosts[0] && !shared->speedBoosts[1])
+                return;
+
+            if(shared->speedBoosts[0])
+            {
+                shared->speedBoosts[0] = false;
+                this->speedBoostIndex = 0;
+            }
+
+            else
+            {
+                shared->speedBoosts[1] = false;
+                this->speedBoostIndex = 1;
+            }
+
+            cout << "CLYDE TOOK SPEED BOOST" << endl;
+            shared->takenSpeedBoosts[3] = true;
+        }
     }
 };

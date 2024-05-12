@@ -32,6 +32,8 @@ struct SharedVariables
     Clock gottenOut; // to allow only one ghost at a time to exit house
     bool allowedToLeave[4] = {false,false,false,false};
     bool inHouse[4] = {true,true,true,true};
+    bool speedBoosts[2] = {true,true};
+    bool takenSpeedBoosts[4] = {false,false,false,false};
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 

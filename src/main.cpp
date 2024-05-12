@@ -90,6 +90,10 @@ void * Blinky_thread_function(void * arg)
         {
             delay = 0.05;
         }
+
+        else if(shared->takenSpeedBoosts[0])
+            delay = 0.08;
+
         else
         {
             delay = 0.1;
@@ -153,6 +157,10 @@ void * Pinky_thread_function(void * arg)
        {
             delay = 0.05;
        }
+
+       else if(shared->takenSpeedBoosts[1])
+            delay = 0.08;
+
        else
        {
             delay = 0.1;
@@ -215,6 +223,9 @@ void * Inky_thread_function(void * arg)
             delay = 0.05;
        }
 
+       else if(shared->takenSpeedBoosts[2])
+            delay = 0.08;
+
        else 
        {
             delay = 0.1;
@@ -276,6 +287,10 @@ void * Clyde_thread_function(void * arg)
        {
             delay = 0.05;
        }
+
+       else if(shared->takenSpeedBoosts[3])
+            delay = 0.08;
+
        else
        {
             delay = 0.1;
