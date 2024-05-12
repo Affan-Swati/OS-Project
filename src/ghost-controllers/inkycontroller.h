@@ -159,7 +159,6 @@ class InkyController : public GhostController
                 this->speedBoostIndex = 1;
             }
 
-            cout << "INKY TOOK SPEED BOOST" << endl;
             shared->takenSpeedBoosts[2] = true;
         }
     }

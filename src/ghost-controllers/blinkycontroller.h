@@ -137,7 +137,6 @@ class BlinkyController : public GhostController
                 this->speedBoostIndex = 1;
             }
 
-            cout << "BLINKY TOOK SPEED BOOST" << endl;
             shared->takenSpeedBoosts[0] = true;
         }
     }

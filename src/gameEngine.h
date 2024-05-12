@@ -48,6 +48,7 @@ class GameEngine
     Clock scatterClock;
     Clock chaseClock;
     Clock clk;
+    Clock highscoreBlink;
    
     bool frightenStart , frightenEnd;
     vector<pair<int,int>> frightenPallets;
@@ -488,6 +489,44 @@ class GameEngine
             name = playerName;
     }
 
+    void updateHighScore()
+    {
+        ifstream file("highscore.txt",ios::in);
+        string extracted = "";
+        int score;
+        bool write;
+
+        getline(file,extracted); // format NAME SCORE
+        file.close();
+
+
+        if(extracted == "")
+        {
+            write = true;
+        }
+
+        else
+        {
+            score = stoi(extracted.substr(extracted.find(' ') + 1));
+
+            if(score < pacman->score)
+                write = true;
+            else
+            {
+                return;
+            }
+        }
+
+        ofstream file2("highscore.txt",ios::out);
+        if(write)
+        {
+            file2 << (name + " " + to_string(pacman->score));
+        }
+
+        file2.close();
+
+    }
+
     void start_game()
     {
         RenderWindow window(VideoMode(695,900), "Pacman OS Project");
@@ -495,12 +534,13 @@ class GameEngine
         // window.setFramerateLimit(144);
         font.loadFromFile("../resources/font.ttf");
         text.setFont(font);
-        text.setPosition(Vector2f(265,760));
+        text.setPosition(Vector2f(255,760));
         text.setOutlineColor(Color::White);
         text.setScale(0.7,0.7);
+
+        text2.setPosition(Vector2f(250,860));
         text2.setFont(font);
-        text2.setScale(0.6,0.6);
-        text2.setFillColor(Color::Blue);
+        text2.setScale(0.5,0.5);
         
         menuMusic.play();
         if(displayMenu(window) == 4)
@@ -518,9 +558,14 @@ class GameEngine
 
         window.setMouseCursorVisible(true);
         getNameInput(window);
-        text2.setString(name);
-        text2.setOrigin(text2.getGlobalBounds().width / 2 , text2.getGlobalBounds().height / 2);
-        text2.setPosition(Vector2f(330,850));
+
+        pair<string,int> highScore = this->getHighScore();
+
+        if(highScore.first == "")
+            text2.setString("HighScore N/A");
+
+        else    
+            text2.setString("HighScore:" + to_string(highScore.second) + "\nBy " + highScore.first);
         menuMusic.stop();
 
         startAnimation(window);
@@ -534,6 +579,8 @@ class GameEngine
         sem_post(&shared->gameStarted); 
 
         float time = 0;        
+        bool highScoreBeaten = false;
+        bool clockRestarted = false;
         siren.play();
         siren.setLoop(true);
         scatterClock.restart();
@@ -553,6 +600,7 @@ class GameEngine
                     frightenSound.stop();
                     homeRunningSound.stop();
                     shared->gameOver = true;
+                    updateHighScore();
                     window.close();
                     return;
                 }
@@ -567,6 +615,7 @@ class GameEngine
                 homeRunningSound.stop();
                 eatPower.stop();
                 shared->gameOver = true;
+                updateHighScore();
                 window.close();
             }
 
@@ -607,6 +656,35 @@ class GameEngine
             
             if(cherry->checkCollision())
                 pacman->score = pacman->score + 100;
+
+            if(pacman->score > highScore.second)
+            {
+                text2.setString("HighScore:" + to_string(pacman->score) + "\nBy " + name);
+
+                if(!highScoreBeaten)
+                {
+                    float time = highscoreBlink.getElapsedTime().asSeconds() - (int)highscoreBlink.getElapsedTime().asSeconds();
+                    time *= 10;
+
+                    if(!clockRestarted)
+                    {
+                        highscoreBlink.restart();
+                        clockRestarted = true;
+                    }
+
+                    if(time < 5)
+                        text2.setFillColor(Color::Black);
+                    else
+                        text2.setFillColor(Color::White);
+                }
+
+                if(!highScoreBeaten && highscoreBlink.getElapsedTime().asSeconds() > 3)
+                {
+                    highScoreBeaten = true;
+                    text2.setFillColor(Color::White);
+                }
+            }
+
 
             window.draw(text);
             window.draw(text2);
@@ -1070,6 +1148,31 @@ class GameEngine
         pinky->blink.restart();
         inky->blink.restart();
         clyde->blink.restart();
+    }
+
+    pair<string,int> getHighScore()
+    {
+        ifstream file("highscore.txt",ios::in);
+        string extracted = "";
+        int score;
+        string name;
+
+        getline(file,extracted); // format NAME SCORE
+        file.close();
+
+
+        if(extracted == "")
+        {
+            return make_pair("" , 0);
+        }
+
+        else
+        {
+            score = stoi(extracted.substr(extracted.find(' ') + 1));   
+            name = extracted.substr(0,extracted.find(' '));
+            return make_pair(name,score);
+        }
+
     }
 };
 #endif

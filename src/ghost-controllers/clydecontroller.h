@@ -142,8 +142,6 @@ class ClydeController : public GhostController
                 shared->speedBoosts[1] = false;
                 this->speedBoostIndex = 1;
             }
-
-            cout << "CLYDE TOOK SPEED BOOST" << endl;
             shared->takenSpeedBoosts[3] = true;
         }
     }
