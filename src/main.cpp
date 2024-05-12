@@ -98,7 +98,7 @@ void * Blinky_thread_function(void * arg)
 
         if(ghostSync1.getElapsedTime().asSeconds() > delay)
         {
-                if(!blinkyController->inHouse || (blinkyController->key && blinkyController->permit))
+                if(!shared->inHouse[0] || (blinkyController->key && blinkyController->permit))
                 {
                     pthread_mutex_lock(&shared->mutex);
                     blinkyController->update();
@@ -161,7 +161,7 @@ void * Pinky_thread_function(void * arg)
 
        if(ghostSync2.getElapsedTime().asSeconds() > delay)
        {
-            if(!pinkyController->inHouse || (pinkyController->key && pinkyController->permit))
+            if(!shared->inHouse[1]|| (pinkyController->key && pinkyController->permit))
             {
                 pthread_mutex_lock(&shared->mutex);
                 pinkyController->update();
@@ -223,7 +223,7 @@ void * Inky_thread_function(void * arg)
 
        if(ghostSync3.getElapsedTime().asSeconds() > delay)
        {
-            if(!inkyController->inHouse || (inkyController->key && inkyController->permit))
+            if(!shared->inHouse[2]| (inkyController->key && inkyController->permit))
             {
                 pthread_mutex_lock(&shared->mutex);
                 inkyController->update();
@@ -284,7 +284,7 @@ void * Clyde_thread_function(void * arg)
 
        if(ghostSync4.getElapsedTime().asSeconds() > delay)
        {
-            if(!clydeController->inHouse || (clydeController->key && clydeController->permit))
+            if(!shared->inHouse[3] || (clydeController->key && clydeController->permit))
             {
                 clydeController->update();
             }

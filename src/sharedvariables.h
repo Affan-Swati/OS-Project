@@ -27,12 +27,11 @@ struct SharedVariables
     char userInput  = 'a';
     int pacDirection   = 3;
     Vector2f pacPos = Vector2f(17,36);
-    int lives;
-    int score;
 
     Clock key_perm[4]; // 0 & 1 for keys , 2 & 3 for permits
     Clock gottenOut; // to allow only one ghost at a time to exit house
     bool allowedToLeave[4] = {false,false,false,false};
+    bool inHouse[4] = {true,true,true,true};
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 

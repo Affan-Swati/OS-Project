@@ -6,7 +6,6 @@ class InkyController : public GhostController
     InkyController(void *&arg)
     {
         shared = (SharedVariables*) arg;
-        inHouse = true;
         key = false;
         permit = false;
         key_index = -1;
@@ -15,9 +14,9 @@ class InkyController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
     {
-        if(inHouse)
+        if(shared->inHouse[2])
         {
-            return make_pair(22,19); // house exit
+            return make_pair(22,18); // house exit
         }
 
         if(shared->mode[2] == 1) // in scatter mode
@@ -27,7 +26,7 @@ class InkyController : public GhostController
 
         if(shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 22)
         {
-            inHouse = true;
+            shared->inHouse[2] = true;
             shared->mode[2] = shared->oldMode[2];
 
         }
@@ -90,13 +89,11 @@ class InkyController : public GhostController
 
     void update() 
     {
-        checkReset();
-
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->inkyPos,shared->mode[2]);
+        vector<pair<int,int>> moves = findMoves(shared->inkyPos,2);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 
@@ -131,9 +128,9 @@ class InkyController : public GhostController
             shared->inkyPos.first.y = 30;
         }
 
-        if(inHouse && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
+        if(shared->inHouse[2] && shared->inkyPos.first.x == 22 && shared->inkyPos.first.y == 19)
         {
-            inHouse = false;
+            shared->inHouse[2] = false;
             releaseKeyPermit(2);
         }
 

@@ -6,7 +6,6 @@ class ClydeController : public GhostController
     ClydeController(void *&arg)
     {
         shared = (SharedVariables*) arg;
-        inHouse = true;
         key = false;
         permit = false;
         key_index = -1;
@@ -15,19 +14,19 @@ class ClydeController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
     {
-        if(inHouse)
+        if(shared->inHouse[3])
         {
-            return make_pair(22,19); // house exit
+            return make_pair(22,18); // house exit
         }
 
-        if(shared->mode[0] == 1) // in scatter mode
+        if(shared->mode[3] == 1) // in scatter mode
         {
             return make_pair(0,49);
         }
 
         if(shared->clydePos.first.x == 22 && shared->clydePos.first.y == 22)
         {
-            inHouse = true;
+            shared->inHouse[3] = true;
             shared->mode[3] = shared->oldMode[3];
 
         }
@@ -74,8 +73,6 @@ class ClydeController : public GhostController
 
     void update() 
     {
-        checkReset();
-
          if(shared->gameReset)
             return;
             
@@ -83,7 +80,7 @@ class ClydeController : public GhostController
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->clydePos,shared->mode[3]);
+        vector<pair<int,int>> moves = findMoves(shared->clydePos, 3);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 
@@ -118,9 +115,9 @@ class ClydeController : public GhostController
         // shared->gameBoard[(int)shared->clydePos.second.y][(int)shared->clydePos.second.x] = 0;
         // shared->gameBoard[(int)shared->clydePos.first.y][(int)shared->clydePos.first.x] = 8;
 
-        if(inHouse && shared->clydePos.first.x == 22 && shared->clydePos.first.y == 19)
+        if(shared->inHouse[3] && shared->clydePos.first.x == 22 && shared->clydePos.first.y == 19)
         {
-            inHouse = false;
+            shared->inHouse[3] = false;
             releaseKeyPermit(3);
         }
 

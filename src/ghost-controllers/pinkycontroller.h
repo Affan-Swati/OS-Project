@@ -6,7 +6,7 @@ class PinkyController : public GhostController
     PinkyController(void *&arg)
     {
         shared = (SharedVariables*) arg;
-        inHouse = true;
+        shared->inHouse[1] = true;
         key = false;
         permit = false;
         key_index = -1;
@@ -15,9 +15,9 @@ class PinkyController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction)
     {
-        if(inHouse)
+        if(shared->inHouse[1])
         {
-            return make_pair(22,19); // house exit
+            return make_pair(22,18); // house exit
         }
 
         if(shared->mode[1] == 1) // in scatter mode
@@ -27,7 +27,7 @@ class PinkyController : public GhostController
 
         if(shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 22)
         {
-            inHouse = true;
+            shared->inHouse[1] = true;
             shared->mode[1] = shared->oldMode[1];
 
         }
@@ -75,12 +75,11 @@ class PinkyController : public GhostController
 
     void update() 
     {        
-        checkReset();
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->pinkyPos,shared->mode[1]);
+        vector<pair<int,int>> moves = findMoves(shared->pinkyPos,1);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 
@@ -115,9 +114,9 @@ class PinkyController : public GhostController
             shared->pinkyPos.first.y = 30;
         }
 
-        if(inHouse && shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 19)
+        if(shared->inHouse[1] && shared->pinkyPos.first.x == 22 && shared->pinkyPos.first.y == 19)
         {
-            inHouse = false;
+            shared->inHouse[1] = false;
             releaseKeyPermit(1);
         }
 

@@ -8,7 +8,6 @@ class BlinkyController : public GhostController
     BlinkyController(void *&arg)
     {
         shared = (SharedVariables*) arg;
-        inHouse = true;
         key = false;
         permit = false;
         key_index = -1;
@@ -17,9 +16,9 @@ class BlinkyController : public GhostController
 
     pair<int, int> calculateTargetTile(int pacmanX, int pacmanY , int direction)
     {
-        if(inHouse)
+        if(shared->inHouse[0])
         {
-            return make_pair(22,19); // house exit
+            return make_pair(22,18); // house exit
         }
 
         if(shared->mode[0] == 1) // in scatter mode
@@ -29,7 +28,7 @@ class BlinkyController : public GhostController
 
         if(shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 22)
         {
-            inHouse = true;
+            shared->inHouse[0] = true;
             shared->mode[0] = shared->oldMode[0];
         }
 
@@ -68,13 +67,12 @@ class BlinkyController : public GhostController
 
     void update() 
     {
-        checkReset();
 
         int pacmanX = shared->pacPos.x;
         int pacmanY = shared->pacPos.y;
         int direction = shared->pacDirection;
 
-        vector<pair<int,int>> moves = findMoves(shared->blinkyPos,shared->mode[0]);
+        vector<pair<int,int>> moves = findMoves(shared->blinkyPos, 0);
 
         pair<int,int> target = calculateTargetTile(pacmanX,pacmanY,direction);
 
@@ -109,9 +107,9 @@ class BlinkyController : public GhostController
             shared->blinkyPos.first.y = 30;
         }
 
-        if(inHouse && shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 19)
+        if(shared->inHouse[0] && shared->blinkyPos.first.x == 22 && shared->blinkyPos.first.y == 19)
         {
-            inHouse = false;
+            shared->inHouse[0] = false;
             releaseKeyPermit(0);
         }
 

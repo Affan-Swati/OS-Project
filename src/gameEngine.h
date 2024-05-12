@@ -165,7 +165,7 @@ class GameEngine
             {
                 graphicsRenderer->drawGhost(window,scoreSprite[ghostEaten - 1],shared->clydePos.first.x ,shared->clydePos.first.y);
             }
-
+            
             if(cherry->isActive)
                 window.draw(cherry->sprite);           
             graphicsRenderer->drawLives(window,pacman->lives);
@@ -585,8 +585,6 @@ class GameEngine
             else if(!isAnyMode(3) && homeRunningSound.getStatus() == SoundSource::Playing )
                 homeRunningSound.stop();
 
-            shared->lives = pacman->lives;
-            shared->score = pacman->score;
             text.setString("SCORE:" + to_string(pacman->score));
             graphicsRenderer->drawMaze(window);
             graphicsRenderer->drawMap(window);
@@ -679,8 +677,7 @@ class GameEngine
         if(blinky->eatsPac(pacman->sprite) || pinky->eatsPac(pacman->sprite) || inky->eatsPac(pacman->sprite) || clyde->eatsPac(pacman->sprite))
         {
             shared->gameReset = true;
-            shared->stateReset = true;
-            pthread_mutex_lock(&shared->mutex);
+            pthread_mutex_lock(&shared->mutex);       
             pacman->lives -= 1;
             int x = shared->pacPos.x;
             int y = shared->pacPos.y;
@@ -704,6 +701,7 @@ class GameEngine
             shared->ghostState = 0; // 0 or 1
             shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
             shared->allowedToLeave[0] = false;shared->allowedToLeave[1] = false;shared->allowedToLeave[2] = false;shared->allowedToLeave[3] = false;
+            shared->inHouse[0] = true;shared->inHouse[1] = true;shared->inHouse[2] = true;shared->inHouse[3] = true;
             pthread_mutex_unlock(&shared->mutex);
 
             if(pacman->lives == 0)
@@ -717,22 +715,17 @@ class GameEngine
             }
 
             shared->gameReset = false;
+
             // 4 for ghosts , 1 for UI thread
             sem_post(&shared->gameReset2);
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
             sem_post(&shared->gameReset2); 
-           
-           // wait until all ghosts reset their states to inHouse
-            sem_wait(&shared->statesReseted);
-            sem_wait(&shared->statesReseted);
-            sem_wait(&shared->statesReseted);
-            sem_wait(&shared->statesReseted);
 
-            shared->stateReset = false;
-
-             
+            
+ 
+                        
         }
     }
 

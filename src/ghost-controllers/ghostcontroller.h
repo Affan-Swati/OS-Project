@@ -13,20 +13,11 @@ class GhostController
 {
     protected:
     virtual pair<int, int> calculateTargetTile(int pacmanX, int pacmanY, int direction) = 0;
-    void checkReset()
-    {
-        if(shared->stateReset && !inHouse)
-        {
-            sem_post(&shared->statesReseted);
-            inHouse = true;
-        }
-    }
-
+    
     public:
     virtual void update() = 0;
     
     SharedVariables* shared;
-    bool inHouse;
     bool key;
     bool permit;
     int key_index;
@@ -36,29 +27,29 @@ class GhostController
     {
     }
 
-    vector<pair<int,int>> findMoves(pair<Vector2f,Vector2f> &ghostPosition , int mode) 
+    vector<pair<int,int>> findMoves(pair<Vector2f,Vector2f> &ghostPosition ,int ghostNum) 
     {
         int nextX = ghostPosition.first.x;
         int nextY = ghostPosition.first.y;
 
         vector<pair<int,int>> moves;
 
-        if(!checkCollisionGhost(nextX + 1, nextY ,mode) && !reverse(nextX + 1 , nextY,ghostPosition.second))
+        if(!checkCollisionGhost(nextX + 1, nextY ,ghostNum) && !reverse(nextX + 1 , nextY,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX + 1 , nextY));
         }
 
-        if(!checkCollisionGhost(nextX - 1, nextY , mode) && !reverse(nextX - 1 , nextY,ghostPosition.second))
+        if(!checkCollisionGhost(nextX - 1, nextY , ghostNum) && !reverse(nextX - 1 , nextY,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX - 1 , nextY));
         }
 
-        if(!checkCollisionGhost(nextX, nextY + 1 , mode) && !reverse(nextX , nextY + 1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX, nextY + 1 , ghostNum) && !reverse(nextX , nextY + 1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY + 1));
         }
 
-        if(!checkCollisionGhost(nextX , nextY - 1 , mode) && !reverse(nextX , nextY -1,ghostPosition.second))
+        if(!checkCollisionGhost(nextX , nextY - 1 , ghostNum) && !reverse(nextX , nextY -1,ghostPosition.second))
         {
             moves.push_back(make_pair(nextX , nextY - 1));
         }
@@ -76,11 +67,11 @@ class GhostController
             sem_wait(&shared->key_perm_semaphores[i]);
             key = true;
             sem_wait(&shared->key_perm_semaphores[(i + 1) % 4]);
+            permit = true;
 
             pthread_mutex_lock(&shared->key_perm_mutex);
             shared->key_perm[i].restart();
             shared->key_perm[(i + 1) % 4].restart();
-            permit = true;
             pthread_mutex_unlock(&shared->key_perm_mutex);
 
        }
@@ -97,9 +88,9 @@ class GhostController
     }
     
     private:
-    bool checkCollisionGhost(int x, int y , int mode) 
+    bool checkCollisionGhost(int x, int y , int ghostNum) 
     {
-        if(!inHouse && mode != 3 && shared->gameBoard[y][x] == 4)
+        if(!shared->inHouse[ghostNum] && shared->mode[ghostNum] != 3 && y == 21 && x == 22)
             return true;
         // Check if the position is within the boundaries of the game board
         if (x >= 0 && x < shared->COLS && y >= 0 && y < shared->ROWS) 
