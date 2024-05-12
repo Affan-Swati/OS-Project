@@ -29,10 +29,8 @@ public:
 
     void initializeOptions() 
     {
-        addOption("Start Game", 260);
-        addOption("How To Play", 330);
-        addOption("HighScores", 400);
-        addOption("Exit", 470);
+        addOption("Start Game", 330);
+        addOption("Exit", 400);
     }
 
     void addOption(const string& text, float yPos) 
@@ -79,14 +77,6 @@ public:
                 {
                     return 2;
                 } 
-                else if (selectedOption == 2) 
-                {
-                    return 3;
-                } 
-                else if (selectedOption == 3) 
-                {
-                    return 4;
-                }
 
                 else
                     return 0;

@@ -43,7 +43,7 @@ class GameEngine
     Sprite scoreSprite[4];
     Texture scoreTex[4]; // 200 ,400 , 800 , 1600
 
-    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound , menuMusic;
+    Music siren , eat1,eat2  , eatPower , frightenSound ,homeRunningSound , menuMusic ,highscoreSound;
     Clock frightenClock;
     Clock scatterClock;
     Clock chaseClock;
@@ -83,6 +83,7 @@ class GameEngine
         frightenSound.openFromFile("../resources/sounds/blue.wav");
         homeRunningSound.openFromFile("../resources/sounds/homerunning.wav");
         menuMusic.openFromFile("../resources/sounds/menu.wav");
+        highscoreSound.openFromFile("../resources/sounds/highscore.wav");
 
         food.setTexture(tex);
         food.setScale(1.5,1.5);
@@ -91,8 +92,11 @@ class GameEngine
         logo.setScale(0.1,0.1);
         eat1.setVolume(50.f);
         eat2.setVolume(50.f);
+        homeRunningSound.setVolume(40);
+        highscoreSound.setVolume(40);
+
         menuMusic.setLoop(true);
-        menuMusic.setVolume(70);
+        menuMusic.setVolume(70);;
         text.setString("Score:0");
 
         for(int i = 0 ; i < 4 ; i++)
@@ -273,7 +277,7 @@ class GameEngine
         overlay.setFillColor(Color(0, 0, 0, 170)); // Set the overlay color with alpha (transparency)
         window.setMouseCursorVisible(false);
 
-        while (menu_option != 1 && menu_option != 4) 
+        while (menu_option == 0) 
         {
             Event event;
             while (window.pollEvent(event)) 
@@ -281,7 +285,7 @@ class GameEngine
                 if (event.type == Event::Closed) 
                 {
                     window.close();
-                    return 4;
+                    return 2;
                 }
 
                 eventRet = menu.handleEvent(event);
@@ -360,7 +364,7 @@ class GameEngine
 
             window.display();  
 
-            if(menu_option == 1 || menu_option == 4)
+            if(menu_option != 0)
             {
                 return menu_option;
             }
@@ -543,7 +547,9 @@ class GameEngine
         text2.setScale(0.5,0.5);
         
         menuMusic.play();
-        if(displayMenu(window) == 4)
+
+        int menu_option = displayMenu(window);
+        if(menu_option == 2)
         {   
             menuMusic.stop();
             window.close();
@@ -581,6 +587,7 @@ class GameEngine
         float time = 0;        
         bool highScoreBeaten = false;
         bool clockRestarted = false;
+        int highscoreBlinkCounter = 0;
         siren.play();
         siren.setLoop(true);
         scatterClock.restart();
@@ -632,7 +639,6 @@ class GameEngine
 
             if(isAnyMode(3) && homeRunningSound.getStatus() != SoundSource::Playing)
             {
-                homeRunningSound.setVolume(500);
                 homeRunningSound.play();
                 homeRunningSound.setLoop(true);
             }
@@ -669,18 +675,25 @@ class GameEngine
                     if(!clockRestarted)
                     {
                         highscoreBlink.restart();
+                        highscoreSound.play();
                         clockRestarted = true;
                     }
 
-                    if(time < 5)
+                    if(highscoreBlinkCounter > 5)
+                        highscoreBlinkCounter = 0;
+                    else
+                        highscoreBlinkCounter++;
+
+                    if(highscoreBlinkCounter < 3)
                         text2.setFillColor(Color::Black);
                     else
                         text2.setFillColor(Color::White);
                 }
 
-                if(!highScoreBeaten && highscoreBlink.getElapsedTime().asSeconds() > 3)
+                if(!highScoreBeaten && highscoreBlink.getElapsedTime().asSeconds() > 2)
                 {
                     highScoreBeaten = true;
+                    highscoreSound.stop();
                     text2.setFillColor(Color::White);
                 }
             }
