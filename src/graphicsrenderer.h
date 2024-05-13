@@ -131,7 +131,12 @@ class GraphicsRenderer
             RectangleShape cell(Vector2f(CELLSIZE_X,CELLSIZE_Y));
             cell.setOutlineColor(Color(0,0,0,255));
             cell.setOutlineThickness(-1.0f); // Negative thickness for outline
+
+            if(shared->level == 1)
             cell.setFillColor(Color(0,0,255,100));
+
+            else
+            cell.setFillColor(Color(255,0,0,100));
 
             int opacity = 210;
             bool dec = true;
@@ -140,7 +145,7 @@ class GraphicsRenderer
             {   
                 if(dec)
                 {
-                    if(opacity <= 50)
+                    if(opacity <= 120)
                         dec = false;
                     else
                         opacity -= 10;
@@ -154,7 +159,11 @@ class GraphicsRenderer
                         opacity += 10;
 
                 }
+                if(shared->level == 1)
                 cell.setFillColor(Color(0,0,255,opacity));
+
+                else
+                cell.setFillColor(Color(255,0,0,opacity));
 
                 for (int j = 0; j < shared->COLS; ++j) 
                 {
@@ -265,7 +274,14 @@ class GraphicsRenderer
         }
 
         void drawMap(RenderWindow &window )
-        {
+        {  if(shared->level == 1)
+           {
+                sprite.setColor(Color(255,255,255,255));
+           }
+
+           else
+            sprite.setColor(Color(255,0,0,255));
+
             window.draw(sprite);
         }
 
@@ -281,7 +297,7 @@ class GraphicsRenderer
 
             window.draw(text2);
         }
-
+        
         void drawGhostSpeedBoosts(RenderWindow &window)
         {
             if(!shared->takenSpeedBoosts[0])

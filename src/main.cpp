@@ -29,7 +29,7 @@ pthread_t tid[7];
 
 sem_t thread_active[7];
 
-Clock ghostSync1 , ghostSync2 ,ghostSync3 ,ghostSync4 , stateSync;
+Clock ghostSync[4], stateSync; // TODO: make a single array clock
 
 void * gameEngine_thread_function(void *);
 void * UI_thread_function(void *);
@@ -91,8 +91,16 @@ void * Blinky_thread_function(void * arg)
             delay = 0.05;
         }
 
-        else if(shared->takenSpeedBoosts[0])
+        else if(shared->takenSpeedBoosts[0] && shared->level == 1)
             delay = 0.08;
+
+        else if(shared->takenSpeedBoosts[0] && shared->level == 2)
+            delay = 0.07;
+
+        else if(shared->level == 2)
+        {
+            delay = 0.08;
+        }
 
         else
         {
@@ -100,7 +108,7 @@ void * Blinky_thread_function(void * arg)
         }
 
 
-        if(ghostSync1.getElapsedTime().asSeconds() > delay)
+        if(ghostSync[0].getElapsedTime().asSeconds() > delay)
         {
                 if(!shared->inHouse[0] || (blinkyController->key && blinkyController->permit))
                 {
@@ -113,7 +121,7 @@ void * Blinky_thread_function(void * arg)
                 {
                     blinkyController->grabKeyPermit(0);
                 }
-                ghostSync1.restart();
+                ghostSync[0].restart();
         }
     }
 
@@ -158,8 +166,16 @@ void * Pinky_thread_function(void * arg)
             delay = 0.05;
        }
 
-       else if(shared->takenSpeedBoosts[1])
+       else if(shared->takenSpeedBoosts[1] && shared->level == 1)
             delay = 0.08;
+
+        else if(shared->takenSpeedBoosts[1] && shared->level == 2)
+            delay = 0.07;
+        
+        else if(shared->level == 2)
+        {
+            delay = 0.08;
+        }
 
        else
        {
@@ -167,7 +183,7 @@ void * Pinky_thread_function(void * arg)
        }
 
 
-       if(ghostSync2.getElapsedTime().asSeconds() > delay)
+       if(ghostSync[1].getElapsedTime().asSeconds() > delay)
        {
             if(!shared->inHouse[1]|| (pinkyController->key && pinkyController->permit))
             {
@@ -179,7 +195,7 @@ void * Pinky_thread_function(void * arg)
             {
                 pinkyController->grabKeyPermit(1);
             }
-            ghostSync2.restart();
+            ghostSync[1].restart();
        }
     }
 
@@ -223,16 +239,24 @@ void * Inky_thread_function(void * arg)
             delay = 0.05;
        }
 
-       else if(shared->takenSpeedBoosts[2])
+        else if(shared->takenSpeedBoosts[2] && shared->level == 1)
             delay = 0.08;
 
-       else 
-       {
+        else if(shared->takenSpeedBoosts[2] && shared->level == 2)
+            delay = 0.07;
+        
+        else if(shared->level == 2)
+        {
+            delay = 0.08;
+        }
+
+        else 
+        {
             delay = 0.1;
-       }
+        }
 
 
-       if(ghostSync3.getElapsedTime().asSeconds() > delay)
+       if(ghostSync[2].getElapsedTime().asSeconds() > delay)
        {
             if(!shared->inHouse[2]| (inkyController->key && inkyController->permit))
             {
@@ -244,7 +268,7 @@ void * Inky_thread_function(void * arg)
             {
                inkyController->grabKeyPermit(2);
             }
-            ghostSync3.restart();
+            ghostSync[2].restart();
        }
     }
 
@@ -288,8 +312,16 @@ void * Clyde_thread_function(void * arg)
             delay = 0.05;
        }
 
-       else if(shared->takenSpeedBoosts[3])
+       else if(shared->takenSpeedBoosts[3] && shared->level == 1)
             delay = 0.08;
+
+        else if(shared->takenSpeedBoosts[3] && shared->level == 2)
+            delay = 0.07;
+
+        else if(shared->level == 2)
+        {
+            delay = 0.08;
+        }
 
        else
        {
@@ -297,7 +329,7 @@ void * Clyde_thread_function(void * arg)
        }
 
 
-       if(ghostSync4.getElapsedTime().asSeconds() > delay)
+       if(ghostSync[3].getElapsedTime().asSeconds() > delay)
        {
             if(!shared->inHouse[3] || (clydeController->key && clydeController->permit))
             {
@@ -310,7 +342,7 @@ void * Clyde_thread_function(void * arg)
                 pthread_mutex_unlock(&shared->mutex);
 
             }
-            ghostSync4.restart();
+            ghostSync[3].restart();
        }
     }
 

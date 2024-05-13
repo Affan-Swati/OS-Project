@@ -35,7 +35,7 @@ class GameEngine
     Fruit *cherry;
     float speed;
 
-    Text text , text2;
+    Text text , text2 , text3;
     sf::Font font;
     Sprite food , logo;
     Texture tex , tex_logo , ghostSheet;
@@ -99,6 +99,11 @@ class GameEngine
         menuMusic.setVolume(70);;
         text.setString("Score:0");
 
+        text3.setFont(font);
+        text3.setString("Level:1");
+        text3.setPosition(Vector2f(15,850));
+        text3.setScale(0.6,0.6);
+
         for(int i = 0 ; i < 4 ; i++)
         {
             scoreSprite[i].setTexture(scoreTex[i]);
@@ -108,6 +113,7 @@ class GameEngine
 
         this->speed = 1;
         this->initializeFood();
+        this->initializePowerPallets();
         shared->gameBoard[(int)pacman->position.y][(int)pacman->position.x] = 2;
         this->frightenStart = false;
         this->frightenEnd = false;
@@ -180,6 +186,7 @@ class GameEngine
             graphicsRenderer->drawLives(window,pacman->lives);
             window.draw(text);
             window.draw(text2);
+            window.draw(text3);
             window.display();  
         }
 
@@ -256,6 +263,7 @@ class GameEngine
                 window.draw(cherry->sprite);
             window.draw(text);
             window.draw(text2);
+            window.draw(text3);
             window.display();  
         }
         animationMusic.stop();
@@ -536,13 +544,14 @@ class GameEngine
         RenderWindow window(VideoMode(695,900), "Pacman OS Project");
         window.setVerticalSyncEnabled(true);
         // window.setFramerateLimit(144);
+        window.setPosition(Vector2i(1080/2 , 1920/2 - 900));
         font.loadFromFile("../resources/font.ttf");
         text.setFont(font);
         text.setPosition(Vector2f(255,760));
         text.setOutlineColor(Color::White);
         text.setScale(0.7,0.7);
 
-        text2.setPosition(Vector2f(250,860));
+        text2.setPosition(Vector2f(250,850));
         text2.setFont(font);
         text2.setScale(0.5,0.5);
         
@@ -613,7 +622,7 @@ class GameEngine
                 }
             }
 
-            if(pacman->lives == 0 || foodEaten == 233)
+            if(pacman->lives == 0 || (foodEaten == 231 && shared->level == 2)) // 233 old
             {
                 siren.stop();
                 eat1.stop();
@@ -624,6 +633,13 @@ class GameEngine
                 shared->gameOver = true;
                 updateHighScore();
                 window.close();
+            }
+
+            if(foodEaten == 20 && shared->level == 1)
+            {
+                shared->level = 2;
+                text3.setString("Level:2");
+                loadSecondLevel(window);
             }
 
             alternateGhostModes();
@@ -701,6 +717,7 @@ class GameEngine
 
             window.draw(text);
             window.draw(text2);
+            window.draw(text3);
             //window.draw(logo);
             graphicsRenderer->drawLives(window,pacman->lives);
             graphicsRenderer->drawGhostSpeedBoosts(window);
@@ -716,7 +733,55 @@ class GameEngine
 
     private:
    
-   void pauseGame(RenderWindow& window)
+    void loadSecondLevel(RenderWindow &window)
+    {
+            shared->gameReset = true;
+            pthread_mutex_lock(&shared->mutex); 
+            this->initializeFood();      
+            int x = shared->pacPos.x;
+            int y = shared->pacPos.y;
+            siren.stop();
+            frightenSound.stop();
+            if(homeRunningSound.getStatus() == SoundStream :: Playing)
+                homeRunningSound.stop();
+
+            shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
+            shared->pacDirection  = 3;
+            pacman->setDirection(3);
+            shared->pacPos = Vector2f(22,36);
+            pacman->position = Vector2f(22,36);
+            shared->gameReset = true;
+            // first is currentPos , second is previousPos
+            shared->blinkyPos.first = Vector2f(18,22); shared->blinkyPos.second = Vector2f(18,22); 
+            shared->pinkyPos.first = Vector2f(20,22); shared->pinkyPos.second = Vector2f(20,22);
+            shared->inkyPos.first  = Vector2f(24,22); shared->inkyPos.second = Vector2f(24,22);
+            shared->clydePos.first = Vector2f(26,22); shared->clydePos.second = Vector2f(26,22);
+            shared->ghostState = 0; // 0 or 1
+            shared->mode[0] = 0;  shared->mode[1] = 0; shared->mode[2] = 0; shared->mode[3] = 0;// 0 chase , 1 scatter , 2 frighten , 3 eaten
+            shared->allowedToLeave[0] = false;shared->allowedToLeave[1] = false;shared->allowedToLeave[2] = false;shared->allowedToLeave[3] = false;
+            shared->inHouse[0] = true;shared->inHouse[1] = true;shared->inHouse[2] = true;shared->inHouse[3] = true;
+            shared->takenSpeedBoosts[0] = false;shared->takenSpeedBoosts[1] = false;shared->takenSpeedBoosts[2] = false;shared->takenSpeedBoosts[3] = false;
+            shared->speedBoosts[0] = true;shared->speedBoosts[1] = true;
+            pthread_mutex_unlock(&shared->mutex);
+
+            
+            startAnimation(window);
+            siren.play();
+            siren.setLoop(true);
+            
+
+            shared->gameReset = false;
+
+            // 4 for ghosts , 1 for UI thread
+            sem_post(&shared->gameReset2);
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
+            sem_post(&shared->gameReset2); 
+
+    }
+
+    void pauseGame(RenderWindow& window)
    {
         Text text3;
         text3.setFont(font);
@@ -788,8 +853,8 @@ class GameEngine
             shared->gameBoard[(int)shared->pacPos.y][(int)shared->pacPos.x] = 0;
             shared->pacDirection  = 3;
             pacman->setDirection(3);
-            shared->pacPos = Vector2f(17,36);
-            pacman->position = Vector2f(17,36);
+            shared->pacPos = Vector2f(22,36);
+            pacman->position = Vector2f(22,36);
             shared->gameReset = true;
             // first is currentPos , second is previousPos
             shared->blinkyPos.first = Vector2f(18,22); shared->blinkyPos.second = Vector2f(18,22); 
@@ -859,15 +924,22 @@ class GameEngine
     
     void updatePacman()
     {
+        float delay = 0.07;
+
+        if(shared->level == 2)
+        {
+            delay = 0.06;
+        }
+
         int input = pacman->getInput(shared->userInput);
 
-            if (clk.getElapsedTime().asSeconds() > 0.07) // delay for player movement
-            {
-                if(!validateAndMove(input))
-                    validateAndMove(pacman->direction);
-                                 
-                clk.restart();
-            }
+        if (clk.getElapsedTime().asSeconds() > delay) // delay for player movement
+        {
+            if(!validateAndMove(input))
+                validateAndMove(pacman->direction);
+                                
+            clk.restart();
+        }
     }
 
     void checkRespawnPallets()
@@ -1077,7 +1149,7 @@ class GameEngine
         {
             for (int j = 0; j < shared->COLS; j+=2) 
             {
-                 if((i == 4 || i == 5 || i == 6) && (j == 2 || j == 42 ))
+                 if( ((i == 4 || i == 5 || i == 6) && (j == 2 || j == 42 )) || (i == 34 && (j == 2 || j == 42)))
                         continue;
 
                 if (shared->gameBoard[i][j] == 0) 
@@ -1086,8 +1158,11 @@ class GameEngine
                 }
             }
         }
+    }
 
-        //233 total food
+    void initializePowerPallets()
+    {
+          //233 total food
         frightenPallets.push_back(make_pair(5,2));
         frightenPallets.push_back(make_pair(5,42));
         frightenPallets.push_back(make_pair(34,42));
