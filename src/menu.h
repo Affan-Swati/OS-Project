@@ -29,8 +29,8 @@ public:
 
     void initializeOptions() 
     {
-        addOption("Start Game", 330);
-        addOption("Exit", 400);
+        addOption("START GAME", 330);
+        addOption("EXIT", 400);
     }
 
     void addOption(const string& text, float yPos) 

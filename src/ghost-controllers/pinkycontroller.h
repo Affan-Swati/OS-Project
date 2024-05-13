@@ -133,6 +133,7 @@ class PinkyController : public GhostController
             if(!shared->speedBoosts[0] && !shared->speedBoosts[1])
                 return;
 
+            pthread_mutex_lock(&shared->speedBoost_mutex);
             if(shared->speedBoosts[0])
             {
                 shared->speedBoosts[0] = false;
@@ -143,9 +144,10 @@ class PinkyController : public GhostController
             {
                 shared->speedBoosts[1] = false;
                 this->speedBoostIndex = 1;
-            }
-
+            }   
+            
             shared->takenSpeedBoosts[1] = true;
+            pthread_mutex_unlock(&shared->speedBoost_mutex);
         }
     }
 

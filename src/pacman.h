@@ -49,7 +49,7 @@ class Pacman
         sprite.setTexture(l3);
         direction = 3;
         state = 0;
-        position.x = 17;
+        position.x = 22;
         position.y = 36;
         
         sprite.setPosition(position.x * 15 ,  position.y * 15);

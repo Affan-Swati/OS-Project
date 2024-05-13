@@ -91,8 +91,13 @@ class GhostController
 
     void relaseSpeedBoost(int ghostNum)
     {
+        if(!shared->takenSpeedBoosts[ghostNum])
+            return;
+            
+        pthread_mutex_lock(&shared->speedBoost_mutex);
         shared->takenSpeedBoosts[ghostNum] = false;
         shared->speedBoosts[speedBoostIndex] = true;
+        pthread_mutex_unlock(&shared->speedBoost_mutex);
     }
     
     private:

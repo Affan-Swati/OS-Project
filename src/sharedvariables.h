@@ -26,7 +26,8 @@ struct SharedVariables
 
     char userInput  = 'a';
     int pacDirection   = 3;
-    Vector2f pacPos = Vector2f(17,36);
+    Vector2f pacPos = Vector2f(22,36);
+    int level = 1;
 
     Clock key_perm[4]; // 0 & 1 for keys , 2 & 3 for permits
     Clock gottenOut; // to allow only one ghost at a time to exit house
@@ -34,6 +35,7 @@ struct SharedVariables
     bool inHouse[4] = {true,true,true,true};
     bool speedBoosts[2] = {true,true};
     bool takenSpeedBoosts[4] = {false,false,false,false};
+    pthread_mutex_t speedBoost_mutex= PTHREAD_MUTEX_INITIALIZER;
 
     // first is currentPos , second is previousPos
     pair<Vector2f,Vector2f> blinkyPos = {Vector2f(18,22) ,Vector2f(18,22)}; 
