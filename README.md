@@ -1,4 +1,4 @@
-<h1 align="center" id="title">Pacman Clone</h1>
+<h1 align="center" id="title">👾 Pacman Clone 👾</h1>
 
 <p id="description">Welcome to the Pacman Clone Game! This project is heavily inspired by the classic arcade game Pacman but features some unique elements and enhancements to provide a fresh gaming experience. Implemented in C++ using the Simple and Fast Multimedia Library (SFML) this game retains approximately 90% similarities with the original Pacman ensuring that fans of the classic game will feel right at home while also introducing new twists and features to keep things interesting.Get ready to embark on an exciting journey through the maze as Pacman!</p>
 

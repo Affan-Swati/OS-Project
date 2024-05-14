@@ -1165,71 +1165,85 @@ class GameEngine
         int originalY = shared->pacPos.y;
         int originalX = shared->pacPos.x;
 
-        if(originalY == 5)
+        bool isPalletActive = false;
+
+        for(int i = 0 ; i < 4 ; i++)
+        {
+            if(shared->mode[i] == 2) // if frighten mode is already active dont the eating of another power pallet
             {
-                if(originalX == frightenPallets[1].second)
-                {
-                    frightenPallets[1].second = -1;
-                    frightenPalletsClocks[1].restart();
-                    setAllMode(2);
-                    ghostEaten = 0;
-                    pacman->score = pacman->score + 50;
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
-
-                else if(originalX == frightenPallets[0].second)
-                {
-                    frightenPallets[0].second = -1;
-                    frightenPalletsClocks[0].restart();
-                    setAllMode(2);
-                    ghostEaten = 0;
-                    pacman->score = pacman->score + 50;
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
-                }
+                isPalletActive = true;
+                break;
             }
+        }
 
-            else if(originalY == 34)
-            {
-                if(originalX== frightenPallets[2].second)
+        if(!isPalletActive) // remove this IF statement if u want the pacman to eat multiple pallets at the same time
+        {
+                if(originalY == 5)
                 {
-                    frightenPallets[2].second = -1;
-                    frightenPalletsClocks[2].restart();
-                    setAllMode(2);
-                    ghostEaten = 0;
-                    pacman->score = pacman->score + 50;
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
+                    if(originalX == frightenPallets[1].second)
+                    {
+                        frightenPallets[1].second = -1;
+                        frightenPalletsClocks[1].restart();
+                        setAllMode(2);
+                        ghostEaten = 0;
+                        pacman->score = pacman->score + 50;
+                        frightenStart = true;
+                        siren.stop();
+                        resetGhostClocks();
+                        frightenSound.setLoop(true);
+                        frightenSound.play();
+                        frightenClock.restart();
+                    }
+
+                    else if(originalX == frightenPallets[0].second)
+                    {
+                        frightenPallets[0].second = -1;
+                        frightenPalletsClocks[0].restart();
+                        setAllMode(2);
+                        ghostEaten = 0;
+                        pacman->score = pacman->score + 50;
+                        frightenStart = true;
+                        siren.stop();
+                        resetGhostClocks();
+                        frightenSound.setLoop(true);
+                        frightenSound.play();
+                        frightenClock.restart();
+                    }
                 }
 
-                else if(originalX == frightenPallets[3].second)
+                else if(originalY == 34)
                 {
-                    frightenPallets[3].second = -1;
-                    frightenPalletsClocks[3].restart();
-                    setAllMode(2);
-                    ghostEaten = 0;
-                    pacman->score = pacman->score + 50;
-                    frightenStart = true;
-                    siren.stop();
-                    resetGhostClocks();
-                    frightenSound.setLoop(true);
-                    frightenSound.play();
-                    frightenClock.restart();
+                    if(originalX== frightenPallets[2].second)
+                    {
+                        frightenPallets[2].second = -1;
+                        frightenPalletsClocks[2].restart();
+                        setAllMode(2);
+                        ghostEaten = 0;
+                        pacman->score = pacman->score + 50;
+                        frightenStart = true;
+                        siren.stop();
+                        resetGhostClocks();
+                        frightenSound.setLoop(true);
+                        frightenSound.play();
+                        frightenClock.restart();
+                    }
+
+                    else if(originalX == frightenPallets[3].second)
+                    {
+                        frightenPallets[3].second = -1;
+                        frightenPalletsClocks[3].restart();
+                        setAllMode(2);
+                        ghostEaten = 0;
+                        pacman->score = pacman->score + 50;
+                        frightenStart = true;
+                        siren.stop();
+                        resetGhostClocks();
+                        frightenSound.setLoop(true);
+                        frightenSound.play();
+                        frightenClock.restart();
+                    }
                 }
-            }
+        }
 
             if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 + ghostEaten + pause_time && !frightenEnd)
             {
