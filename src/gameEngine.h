@@ -135,6 +135,9 @@ class GameEngine
         font.loadFromFile("../resources/font.ttf");
         endAudio.openFromFile("../resources/sounds/gameover.wav");
 
+        if(pacman->score > highScore)
+            highScore = pacman ->score;
+
         Text text3 , text4;
         text3.setFont(font);
         text4.setFont(font);
@@ -188,6 +191,10 @@ class GameEngine
             graphicsRenderer->drawMap(window);
             graphicsRenderer->drawFood(window,frightenPallets);
             pacman->getInput('s');
+            
+            for(int i = 0 ; i < 4 ; i++)
+                shared->mode[i] = 0;
+                
             if(animationClock.getElapsedTime().asSeconds() < 1)
             {
                 blinky->updateTexture(3);
@@ -780,7 +787,9 @@ class GameEngine
                 eatPower.stop();
 
                 if(pacman->lives == 0)
+                {
                     gameEndAnimation(window,highScore.second,"  You Lost" , false);
+                }
                 
                 else
                 gameEndAnimation(window,highScore.second,"  You Won" , true);
