@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
@@ -18,19 +19,14 @@ private:
 
 
 public:
-    Menu(RenderWindow &win) : window(win)
+    Menu(RenderWindow &win, string option1 , string option2 , float y1  = 330, float y2 = 400) : window(win)
     { 
         font.loadFromFile("../resources/font.ttf");
         selectedOption = -1;
         textColor = Color::Yellow;
         hoverColor = Color::Blue; // Color when option is hovered
-        initializeOptions();
-    }
-
-    void initializeOptions() 
-    {
-        addOption("START GAME", 330);
-        addOption("EXIT", 400);
+        addOption(option1,y1);
+        addOption(option2,y2);
     }
 
     void addOption(const string& text, float yPos) 

@@ -34,6 +34,7 @@ class GameEngine
     Ghost *blinky , *pinky ,*inky ,*clyde; // polymorphism 
     Fruit *cherry;
     float speed;
+    float pause_time;      
 
     Text text , text2 , text3;
     sf::Font font;
@@ -119,9 +120,154 @@ class GameEngine
         this->frightenEnd = false;
         this->foodEaten = 0;
         this->ghostEaten = 0;
+        this->pause_time = 0;
 
     }
     
+    void gameEndAnimation(RenderWindow &window , int highScore , string message , bool won)
+    {
+        Music endAudio;
+        Menu menu(window , "EXIT" ,"",600,1000);
+        int menu_option = 0;
+        Clock animationClock;
+        Sprite dummy;
+        sf::Font font;
+        font.loadFromFile("../resources/font.ttf");
+        endAudio.openFromFile("../resources/sounds/gameover.wav");
+
+        Text text3 , text4;
+        text3.setFont(font);
+        text4.setFont(font);
+        text3.setCharacterSize(40);
+        text3.setPosition(245, 255);
+        text3.setFillColor(Color::Yellow);
+        text3.setString("\n\nYOUR SCORE\n   " + to_string(pacman->score) + "\n\nHigh Score\n   " + to_string(highScore));
+        text4.setString(message);
+        text3.setScale(0.5,0.5);
+
+        text4.setCharacterSize(40);
+        text4.setPosition(160, 210);
+        text4.setScale(0.8,0.8);
+
+
+        if(won)
+        text4.setFillColor(Color::Green);
+        
+        else
+        text4.setFillColor(Color::Red);
+
+
+        dummy.setScale(2,2);
+
+        RectangleShape overlay(Vector2f(window.getSize().x, window.getSize().y));
+        overlay.setFillColor(Color(0, 0, 0, 170)); // Set the overlay color with alpha (transparency)
+        window.setMouseCursorVisible(false);
+
+        animationClock.restart();
+        pacman->setDirection(3);
+
+        shared->animation = true;
+        pthread_mutex_lock(&shared->mutex);
+
+        endAudio.play();
+        while (menu_option != 1 && window.isOpen()) 
+        {
+            Event event;
+            while (window.pollEvent(event)) 
+            {
+                if (event.type == Event::Closed) 
+                {
+                    window.close();
+                    break;
+                }
+
+                menu_option = menu.handleEvent(event);
+            }
+
+            graphicsRenderer->drawMaze(window);
+            graphicsRenderer->drawMap(window);
+            graphicsRenderer->drawFood(window,frightenPallets);
+            pacman->getInput('s');
+            if(animationClock.getElapsedTime().asSeconds() < 1)
+            {
+                blinky->updateTexture(3);
+                pinky->updateTexture(0);
+                inky->updateTexture(1);
+                clyde->updateTexture(2);
+            }
+            else if(animationClock.getElapsedTime().asSeconds() < 2)
+            {
+                blinky->updateTexture(2);
+                pinky->updateTexture(1);
+                inky->updateTexture(2);
+                clyde->updateTexture(3);
+            }
+            else if(animationClock.getElapsedTime().asSeconds() < 3)
+            {
+                blinky->updateTexture(1);
+                pinky->updateTexture(2);
+                inky->updateTexture(3);
+                clyde->updateTexture(0);
+            } 
+            else if(animationClock.getElapsedTime().asSeconds() < 4)
+            {
+                blinky->updateTexture(0);
+                pinky->updateTexture(3);
+                inky->updateTexture(0);
+                clyde->updateTexture(1);
+            }
+            else
+                animationClock.restart();
+
+            
+            window.draw(overlay);
+
+            dummy = pinky->sprite;
+            dummy.setScale(2.5,2.5);
+            graphicsRenderer->drawGhost(window, dummy, 17 ,32);
+
+            dummy = inky->sprite;
+            dummy.setScale(2.5,2.5);
+            graphicsRenderer->drawGhost(window, dummy,  20 ,32);
+
+            dummy = blinky->sprite;
+            dummy.setScale(2.5,2.5);
+            graphicsRenderer->drawGhost(window, dummy,23 ,32);
+
+            dummy = clyde->sprite;
+            dummy.setScale(2.5,2.5);
+            graphicsRenderer->drawGhost(window, dummy, 26 ,32);
+
+            dummy = pacman->sprite;
+            dummy.setScale(2.2,2.2);
+            dummy.setPosition(330,530);
+            window.draw(dummy);
+
+
+            menu.draw(window);
+            logo.setPosition(200,100);
+            window.draw(logo);
+
+            dummy.setPosition(Mouse::getPosition(window).x ,Mouse::getPosition(window).y);
+            dummy.setScale(2,2);
+
+            window.draw(text3);
+            window.draw(text4);
+            window.draw(dummy);
+
+
+            window.display();
+       }
+
+        shared->animation = false;
+        pthread_mutex_unlock(&shared->mutex);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+        sem_post(&shared->animation2);
+
+    }
 
     void ghostEatenAnimation(RenderWindow &window , int ghost)
     {
@@ -203,7 +349,12 @@ class GameEngine
     {
         Clock animationClock;
         Music animationMusic;
+
+        if(shared->level == 1)
         animationMusic.openFromFile("../resources/sounds/intro.wav");
+
+        else
+        animationMusic.openFromFile("../resources/sounds/breakbetweenlevels.wav");
 
         siren.stop();
         frightenSound.stop();
@@ -271,16 +422,13 @@ class GameEngine
 
     int displayMenu(RenderWindow &window)
     {
-        Music menuAudio;
-        Menu menu(window);
+        Menu menu(window , "Start Game" , "EXIT");
         int menu_option = 0;
         int eventRet;
         Clock animationClock;
-        Clock opacityClock;
         Sprite dummy;
         dummy.setScale(2,2);
 
-        menuAudio.openFromFile("../resources/sounds/hover.wav");
         RectangleShape overlay(Vector2f(window.getSize().x, window.getSize().y));
         overlay.setFillColor(Color(0, 0, 0, 170)); // Set the overlay color with alpha (transparency)
         window.setMouseCursorVisible(false);
@@ -593,7 +741,7 @@ class GameEngine
         sem_post(&shared->gameStarted); 
         sem_post(&shared->gameStarted); 
 
-        float time = 0;        
+        float time = 0; 
         bool highScoreBeaten = false;
         bool clockRestarted = false;
         int highscoreBlinkCounter = 0;
@@ -622,7 +770,7 @@ class GameEngine
                 }
             }
 
-            if(pacman->lives == 0 || (foodEaten == 231 && shared->level == 2)) // 233 old
+            if(pacman->lives == 0 || (foodEaten == 459 && shared->level == 2)) // 233 old
             {
                 siren.stop();
                 eat1.stop();
@@ -630,12 +778,20 @@ class GameEngine
                 frightenSound.stop();
                 homeRunningSound.stop();
                 eatPower.stop();
+
+                if(pacman->lives == 0)
+                    gameEndAnimation(window,highScore.second,"  You Lost" , false);
+                
+                else
+                gameEndAnimation(window,highScore.second,"  You Won" , true);
+
                 shared->gameOver = true;
                 updateHighScore();
                 window.close();
+                return;
             }
 
-            if(foodEaten == 20 && shared->level == 1)
+            if(foodEaten == 230 && shared->level == 1) // 230
             {
                 shared->level = 2;
                 text3.setString("Level:2");
@@ -724,7 +880,35 @@ class GameEngine
 
             if(shared->gamePaused)
             {
+                bool hr_playing = false, fr_playing = false;
+                pause_time = clk.getElapsedTime().asSeconds();
+
+                if(homeRunningSound.getStatus() == SoundStream :: Playing)
+                {
+                    hr_playing = true;
+                    homeRunningSound.stop();
+                }
+
+                if(frightenSound.getStatus() == SoundStream :: Playing)
+                {
+                    fr_playing = true;
+                    frightenSound.stop();
+                }
+
+                siren.stop();
                 pauseGame(window);
+
+                pause_time = clk.getElapsedTime().asSeconds() - pause_time;
+
+                if(hr_playing)
+                    homeRunningSound.play();
+
+                if(fr_playing)
+                {
+                    frightenSound.play();
+                }
+
+                siren.play();
             }
 
             window.display();
@@ -909,16 +1093,20 @@ class GameEngine
     void alternateGhostModes()
     {
         // check switch between scatter and chase modes
-        if(scatterClock.getElapsedTime().asSeconds() > 7 && isAllMode(1))
+        if(scatterClock.getElapsedTime().asSeconds() > 7  + pause_time && isAllMode(1))
         {
             chaseClock.restart();
+            siren.setPitch(1.15);
             setAllMode(0);
+            pause_time = 0;
         }
 
-        if(chaseClock.getElapsedTime().asSeconds() > 20 && isAllMode(0))
+        if(chaseClock.getElapsedTime().asSeconds() > 20 + pause_time && isAllMode(0))
         {
             scatterClock.restart();
+            siren.setPitch(1);
             setAllMode(1);
+            pause_time = 0;
         }
     }
     
@@ -1037,7 +1225,7 @@ class GameEngine
                 }
             }
 
-            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 + ghostEaten && !frightenEnd)
+            if(frightenStart && frightenClock.getElapsedTime().asSeconds() > 6 + ghostEaten + pause_time && !frightenEnd)
             {
                 frightenEnd = true;
                 frightenStart = false;
@@ -1046,13 +1234,14 @@ class GameEngine
             if(frightenEnd)
             {
                 frightenEnd = false;
-
                 //setToOldMode();
                 setAllMode(0);
                 ghostEaten = 0;
                 siren.play();
                 siren.setLoop(true);
                 frightenSound.stop();
+
+                pause_time = 0;
             }
 
     }
@@ -1133,7 +1322,7 @@ class GameEngine
                 pacman->score = pacman->score + 10;
                 foodEaten = foodEaten + 1;
             }
-            shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 3 means food 
+            shared->gameBoard[nextY][nextX] = 2; // 0 empty space , 2 means pacman , 3 means food 
             shared->gameBoard[originalY][originalX] = 0; // 0 empty space , 3 means food 
 
             pacman->sprite.setPosition(pacman->position);
