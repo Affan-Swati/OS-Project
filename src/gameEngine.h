@@ -18,9 +18,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-
-//pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-
 using namespace std;
 using namespace sf;
 

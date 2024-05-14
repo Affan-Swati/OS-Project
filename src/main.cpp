@@ -23,13 +23,11 @@
 using namespace std;
 using namespace sf;
 
-
-//pthread_mutex_t mut3 = PTHREAD_MUTEX_INITIALIZER;
 pthread_t tid[7];
 
 sem_t thread_active[7];
 
-Clock ghostSync[4], stateSync; // TODO: make a single array clock
+Clock ghostSync[4], stateSync; 
 
 void * gameEngine_thread_function(void *);
 void * UI_thread_function(void *);
