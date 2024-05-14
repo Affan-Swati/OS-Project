@@ -63,19 +63,24 @@ class GhostController
     void grabKeyPermit(int i)
     {
        int delay = 6;
+       
+       int first = i;
+       int second = (i + 1) % 4;
+
+       int smaller = (first < second) ? first : second;
+       int larger = (second < first) ? first : second;
 
        if(shared->key_perm[i].getElapsedTime().asSeconds() > delay && shared->key_perm[(i + 1) % 4].getElapsedTime().asSeconds() > delay)
        {
-            sem_wait(&shared->key_perm_semaphores[i]);
+            sem_wait(&shared->key_perm_semaphores[smaller]);
             key = true;
-            sem_wait(&shared->key_perm_semaphores[(i + 1) % 4]);
+            sem_wait(&shared->key_perm_semaphores[larger]);
             permit = true;
 
             pthread_mutex_lock(&shared->key_perm_mutex);
-            shared->key_perm[i].restart();
-            shared->key_perm[(i + 1) % 4].restart();
+            shared->key_perm[larger].restart();
+            shared->key_perm[smaller].restart();
             pthread_mutex_unlock(&shared->key_perm_mutex);
-
        }
     }
    
